@@ -1,0 +1,677 @@
+
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="utf-8"/>
+                <title>DAWD 01-4 - Demo - Schemas Tables and Views on Databricks SQL</title>
+                <link href='https://fonts.googleapis.com/css?family=DM Sans' rel='stylesheet'>
+                <style>
+                body {
+                    background-color: #f9f7f4;
+                    font-family: 'DM Sans', serif;
+                }
+                h2 {
+                    color: #ff3621;
+                }
+                h3 {
+                    margin-left: 15px
+                }
+                ol {
+                    margin-left: -50px; 
+                    font-family:sans-serif; 
+                    color: #618794;
+                }
+                td {
+                    padding: 5px;
+                    border-bottom: 1px solid #ededed;
+                }
+                tr.selected td {
+                    color: white;
+                    background-color: red;
+                }
+                .monofont {font-family: monospace; font-size: 14px}
+                .content {max-width: 800px; margin: auto; padding-left: 50px}
+                .image-icon-inline {display:inline; vertical-align: middle; margin: 0 10px 0 10px}
+                .instructions-div {padding-left: 40px}
+            </style>
+            </head>
+            <body onload="loaded()">
+                <div class="content">
+                    <img src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/db-academy-rgb-1200px_no_bg.png" 
+                        alt="Databricks Learning" 
+                        style="width: 600px; margin-left: 100px; margin-right: 100px">
+                <hr/>
+                <h1>DAWD 01-4 - Demo - Schemas Tables and Views on Databricks SQL</h1>
+        
+                <div id="inputs">
+                    <p>The two fields below are used to customize queries used in this course. Enter your schema (database) name and username, and press "Enter" to populate necessary information in the queries on this page.</p>
+                    <table>
+                        <tr>
+                            <td style="white-space:nowrap">Schema Name:&nbsp;</td>
+                            <td><input id="schema_name" type="text" style="width:40em" onchange="update();"></td>
+                        </tr><tr>
+                            <td style="white-space:nowrap">Username:&nbsp;</td>
+                            <td><input id="username" type="text" style="width:40em" onchange="update();"></td>
+                        </tr>
+                    </table>
+                </div><hr/>
+<div id="step-1-wrapper" style="width:800px;"><div id="step-1-instruction" style="margin-bottom:1em">    
+
+    <h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+    Lesson Objective</h2>
+    <div class="instructions-div">
+    <p>At the end of this lesson, you will be able to:</p>
+    <ul>
+    <li>Describe how to use Databricks SQL to create schemas, tables, and views</li>
+    </ul></div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-1-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-1-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-1-test-show-btn" type="button" style="display:none;" 
+                        onclick="document.getElementById('step-1-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-1-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-1-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-1-sql" style="width:800px; display: none;">
+            <div>
+                <textarea id="step-1-sql-ta" style="width:100%; padding:10px" rows="2"></textarea>
+                <textarea id="step-1-sql-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-1-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-1-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-2-wrapper" style="width:800px;"><div id="step-2-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Create Schema</h2>
+    <div class="instructions-div">
+    <p>I want to show you how to create a new schema (database). In your organization, you may not have the proper permissions to do this, and in this course, you don't have the proper permission, but I wanted to show you how to do this just the same.</p>
+    <ol>
+        <li>Run the code below.</li>
+    </ol>
+    <p>The code runs three statements. The first drops the schema just in case we are running this twice. The second creates the schema. Note that there is no <span class="monofont">CATALOG</span> provided. Databricks is set up to use a default catalog, and this is set up by your Databricks Administrator.</p>
+    <p>The third statement runs a <span class="monofont">DESCRIBE SCHEMA EXTENDED</span>, which gives us information about the schema, including the location where managed table data will be stored.</p>
+
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-2-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-2-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-2-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-2-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-2-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-2-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-2-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-2-sql-ta" style="width:100%; padding:10px" rows="4">DROP SCHEMA IF EXISTS {schema_name}_schema CASCADE;
+CREATE SCHEMA IF NOT EXISTS {schema_name}_schema;
+DESCRIBE SCHEMA EXTENDED {schema_name}_schema;</textarea>
+                <textarea id="step-2-sql-backup" style="display:none;">DROP SCHEMA IF EXISTS {schema_name}_schema CASCADE;
+CREATE SCHEMA IF NOT EXISTS {schema_name}_schema;
+DESCRIBE SCHEMA EXTENDED {schema_name}_schema;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-2-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-2-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-3-wrapper" style="width:800px;"><div id="step-3-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Managed Tables</h2>
+<h3>Create Table</h3>
+    <div class="instructions-div">
+    <p>From here on out, you have the proper permission level to complete what I'm demonstrating for you here.</p>
+    <p>Let's create a managed table in our schema and insert some sample data.</p>
+    <p>Note that I have "<span class="monofont">USING DELTA</span>" at the end of the <span class="monofont">CREATE</span> statment. This is optional because Delta is the default table type.</p>
+    <ol start="3">
+        <li>Run the code below.</li>
+    </ol>
+    <p></p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-3-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-3-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-3-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-3-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-3-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-3-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-3-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-3-sql-ta" style="width:100%; padding:10px" rows="5">USE {schema_name};
+CREATE OR REPLACE TABLE managed_table (width INT, length INT, height INT) USING DELTA;
+INSERT INTO managed_table VALUES (3, 2, 1);
+SELECT * FROM managed_table;</textarea>
+                <textarea id="step-3-sql-backup" style="display:none;">USE {schema_name};
+CREATE OR REPLACE TABLE managed_table (width INT, length INT, height INT) USING DELTA;
+INSERT INTO managed_table VALUES (3, 2, 1);
+SELECT * FROM managed_table;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-3-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-3-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-4-wrapper" style="width:800px;"><div id="step-4-instruction" style="margin-bottom:1em">    
+
+<h3>View Table Information</h3>
+    <div class="instructions-div">
+    <ol start="4">
+        <li>Run the code below to see information about the table we just created.</li>
+    </ol>
+    <p>Note that the table is a managed table. When we drop this table, our data will be deleted. Note also that this is a Delta table.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-4-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-4-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-4-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-4-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-4-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-4-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-4-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-4-sql-ta" style="width:100%; padding:10px" rows="3">USE {schema_name};
+DESCRIBE EXTENDED managed_table;</textarea>
+                <textarea id="step-4-sql-backup" style="display:none;">USE {schema_name};
+DESCRIBE EXTENDED managed_table;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-4-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-4-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-5-wrapper" style="width:800px;"><div id="step-5-instruction" style="margin-bottom:1em">    
+
+<h3>DROP the Table</h3>
+    <div class="instructions-div">
+    <ol start="5">
+        <li>Run the code below to drop the table.</li>
+    </ol>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-5-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-5-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-5-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-5-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-5-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-5-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-5-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-5-sql-ta" style="width:100%; padding:10px" rows="3">USE {schema_name};
+DROP TABLE IF EXISTS managed_table;</textarea>
+                <textarea id="step-5-sql-backup" style="display:none;">USE {schema_name};
+DROP TABLE IF EXISTS managed_table;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-5-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-5-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-6-wrapper" style="width:800px;"><div id="step-6-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+External Tables</h2>
+    <div class="instructions-div">
+    <p>There is a dataset, called Sales, that is currently in an object store. Running the command below creates an external table that is associated with this dataset.</p>
+    <ol start="5">
+        <li>Run the code below.</li>
+    </ol>
+    <p>The table's data is stored in the external location, but the table itself is registered in the metastore. We can query the data just like any other table in the schema.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-6-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-6-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-6-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-6-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-6-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-6-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-6-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-6-sql-ta" style="width:100%; padding:10px" rows="5">USE {schema_name};
+CREATE TABLE external_table
+    LOCATION 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/retail-org/sales/sales_delta';
+SELECT * FROM external_table;</textarea>
+                <textarea id="step-6-sql-backup" style="display:none;">USE {schema_name};
+CREATE TABLE external_table
+    LOCATION 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/retail-org/sales/sales_delta';
+SELECT * FROM external_table;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-6-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-6-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-7-wrapper" style="width:800px;"><div id="step-7-instruction" style="margin-bottom:1em">    
+
+<h3>View Table Information</h3>
+    <div class="instructions-div">
+    <p>Let's look at the table's information</p>
+    <ol start="6">
+        <li>Run the code below.</li>
+    </ol>
+    <p>Note that the table's type is <span class="monofont">EXTERNAL</span>, and the table's location points to the file system. Dropping this table will not affect the data in this location.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-7-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-7-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-7-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-7-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-7-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-7-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-7-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-7-sql-ta" style="width:100%; padding:10px" rows="3">USE {schema_name};
+DESCRIBE EXTENDED external_table;</textarea>
+                <textarea id="step-7-sql-backup" style="display:none;">USE {schema_name};
+DESCRIBE EXTENDED external_table;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-7-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-7-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-8-wrapper" style="width:800px;"><div id="step-8-instruction" style="margin-bottom:1em">    
+
+<h3>Dropping External Tables</h3>
+    <div class="instructions-div">
+    <p>The command below will drop the table from the schema.</p>
+    <ol start="7">
+        <li>Run the code below to drop the table.</li>
+    </ol>
+    <p>Note that we dropped the table, so we won't be able to query the data using the kind of <span class="monofont">SELECT</span> query you may be used to using.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-8-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-8-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-8-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-8-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-8-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-8-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-8-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-8-sql-ta" style="width:100%; padding:10px" rows="3">USE {schema_name};
+DROP TABLE IF EXISTS external_table;</textarea>
+                <textarea id="step-8-sql-backup" style="display:none;">USE {schema_name};
+DROP TABLE IF EXISTS external_table;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-8-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-8-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-9-wrapper" style="width:800px;"><div id="step-9-instruction" style="margin-bottom:1em">    
+
+<h3>Dropping External Tables Does Not Delete Data</h3>
+    <div class="instructions-div">
+    <ol start="8">
+        <li>Run the code below.</li>
+    </ol>
+    <p>Even though we dropped the table, we are still able to query the data directly in the filesystem because it still exists in the object store.</p>
+    <p>Now, this is one of the coolest features of Databricks SQL. We've talked about how the use of schemas and tables is just an organizational contruct. The data files located in this location can be queried directly, even though they are not part of a table or schema. We use tables and schemas simply to organize data in a way familiar to you.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-9-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-9-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-9-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-9-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-9-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-9-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-9-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-9-sql-ta" style="width:100%; padding:10px" rows="2">SELECT * FROM delta.`wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/retail-org/sales/sales_delta`;</textarea>
+                <textarea id="step-9-sql-backup" style="display:none;">SELECT * FROM delta.`wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/retail-org/sales/sales_delta`;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-9-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-9-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-10-wrapper" style="width:800px;"><div id="step-10-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Views</h2>
+    <div class="instructions-div">
+    <p>Views can be created from other views, tables, or data files. In the code below, we are creating a view from the data in the data file we used above.</p>
+    <ol start="9">
+        <li>Run the code below.</li>
+    </ol>
+    <p>The view now gives us all the sales that totaled more than 10,000. If new rows are added to the Sales data file, the view will update every time it's run.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-10-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-10-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-10-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-10-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-10-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-10-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-10-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-10-sql-ta" style="width:100%; padding:10px" rows="6">USE {schema_name};
+CREATE OR REPLACE VIEW high_sales AS
+    SELECT * FROM delta.`wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/retail-org/sales/sales_delta` 
+        WHERE total_price > 10000;
+SELECT * FROM high_sales;</textarea>
+                <textarea id="step-10-sql-backup" style="display:none;">USE {schema_name};
+CREATE OR REPLACE VIEW high_sales AS
+    SELECT * FROM delta.`wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/retail-org/sales/sales_delta` 
+        WHERE total_price > 10000;
+SELECT * FROM high_sales;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-10-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-10-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-11-wrapper" style="width:800px;"><div id="step-11-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Common Table Expressions (CTEs)</h2>
+    <div class="instructions-div">
+    <p>Here is an example of a CTE. We are going to query the view we just created, but we are going to filter based on the
+       <span class="monofont">total_price</span> being above 20000.
+       We are calling that <span class="monofont">sales_below_20000</span> and then immediately querying the 
+       <span class="monofont">DISTINCT customer_name</span> from that CTE.
+     </p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-11-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-11-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-11-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-11-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-11-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-11-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-11-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-11-sql-ta" style="width:100%; padding:10px" rows="7">USE {schema_name};
+WITH sales_below_20000 AS
+    (SELECT *
+     FROM high_sales
+     WHERE total_price < 20000)
+    SELECT DISTINCT customer_name FROM sales_below_20000;</textarea>
+                <textarea id="step-11-sql-backup" style="display:none;">USE {schema_name};
+WITH sales_below_20000 AS
+    (SELECT *
+     FROM high_sales
+     WHERE total_price < 20000)
+    SELECT DISTINCT customer_name FROM sales_below_20000;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-11-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-11-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><script type="text/javascript">
+            
+            function answerIs(self, expected) {
+                if (self.value === "") {
+                    self.style.backgroundColor="#ffffff";
+                } else if (self.value.toLowerCase().includes(expected)) {
+                    self.style.backgroundColor="#7ffe78";
+                } else {
+                    self.style.backgroundColor="#ffb9bb";
+                }
+            }
+        
+            function loaded() {
+                let data = document.cookie;
+                if (data != null && data.trim() !== "") {
+                    let parts = data.split(";");
+                    for (let i = 0; i < parts.length; i++) {
+                        let key_value = parts[i].trim();
+                        let key = key_value.split("=")[0].trim();
+                        let value = key_value.split("=")[1].trim();
+                        if (value !== "n/a") {
+                            if (key === "dawd_schema_name") {
+                                document.getElementById("schema_name").value = value;
+                            } else if (key === "dawd_username") {
+                                document.getElementById("username").value = value;
+                            } else {
+                                console.log("Unknown cookie: "+key);
+                            }
+                        }
+                    }
+                }
+                update();
+            }
+            function update() {      
+                let schema_name = document.getElementById("schema_name").value;
+                let username = document.getElementById("username").value;
+                let ids = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5', 'step-6', 'step-7', 'step-8', 'step-9', 'step-10', 'step-11'];
+
+                if (schema_name === null || username === null || 
+                    schema_name === "" || username === "") {
+                    for (let i = 0; i < ids.length; i++) {
+                        document.getElementById(ids[i]+"-test-ta").disabled = true;
+                        document.getElementById(ids[i]+"-sql-ta").disabled = true;
+
+                        document.getElementById(ids[i]+"-test-btn").disabled = true;
+                        document.getElementById(ids[i]+"-sql-btn").disabled = true;
+
+                        document.getElementById(ids[i]+"-test-ta").value = document.getElementById(ids[i]+"-test-backup").value
+                        document.getElementById(ids[i]+"-sql-ta").value = document.getElementById(ids[i]+"-sql-backup").value
+                    }
+                } else if (schema_name == "n/a" || username === "n/a") {
+                    for (let i = 0; i < ids.length; i++) {
+                        document.getElementById(ids[i]+"-test-ta").disabled = false;
+                        document.getElementById(ids[i]+"-sql-ta").disabled = false;
+
+                        document.getElementById(ids[i]+"-test-btn").disabled = false;
+                        document.getElementById(ids[i]+"-sql-btn").disabled = false;
+                    }
+                } else {
+                    let illegals = ["<",">","\"","'","\\","/"]; 
+                    for (let i= 0; i < illegals.length; i++) {
+                        if (schema_name.includes(illegals[i])) {
+                            alert("Please double check your schema (database) name.\nIt cannot not include the " + illegals[i] + " symbol.");
+                            return;
+                        }
+                        if (username.includes(illegals[i])) {
+                            alert("Please double check your username.\nIt cannot not include the " + illegals[i] + " symbol.");
+                            return;
+                        }
+                    }
+                    if (schema_name.includes("@")) {
+                        alert("Please double check your schema (database) name.\nIt should not include the @ symbol.");
+                        return;
+                    }
+                    if (username.includes("@") === false) {
+                        alert("Please double check your username.\nIt should include the @ symbol.");
+                        return;
+                    }
+                    for (let i = 0; i < ids.length; i++) {
+                        document.getElementById(ids[i]+"-test-ta").disabled = false;
+                        document.getElementById(ids[i]+"-sql-ta").disabled = false;
+
+                        document.getElementById(ids[i]+"-test-btn").disabled = false;
+                        document.getElementById(ids[i]+"-sql-btn").disabled = false;
+
+                        document.getElementById(ids[i]+"-test-ta").value = document.getElementById(ids[i]+"-test-backup").value
+                                                                                   .replaceAll("{schema_name}", schema_name)
+                                                                                   .replaceAll("{username}", username);
+
+                        document.getElementById(ids[i]+"-sql-ta").value = document.getElementById(ids[i]+"-sql-backup").value
+                                                                                  .replaceAll("{schema_name}", schema_name)
+                                                                                  .replaceAll("{username}", username);
+
+                        document.cookie = "dawd_schema_name="+schema_name;
+                        document.cookie = "dawd_username="+username;
+                    }
+                }
+            }
+        </script>
+        <hr/>
+        <div>
+            <div>&copy; 2023 Databricks, Inc. All rights reserved.</div>
+            <div>Apache, Apache Spark, Spark and the Spark logo are trademarks of the <a href="https://www.apache.org/">Apache Software Foundation</a>.</div>
+            <div style="margin-top:1em">
+                <div style="float:left">
+                    <a href="https://databricks.com/privacy-policy">Privacy Policy</a> | 
+                    <a href="https://databricks.com/terms-of-use">Terms of Use</a> | <a href="https://help.databricks.com/">Support</a>
+                </div>
+                <div style="float:right">1.2.11</div>
+            </div>               
+        </div></div></body></html>

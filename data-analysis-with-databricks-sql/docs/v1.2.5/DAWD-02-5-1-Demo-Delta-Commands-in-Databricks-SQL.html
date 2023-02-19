@@ -1,0 +1,501 @@
+
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="utf-8"/>
+                <title>DAWD 02-5-1 - Demo - Delta Commands in Databricks SQL</title>
+                <link href='https://fonts.googleapis.com/css?family=DM Sans' rel='stylesheet'>
+                <style>
+                body {
+                    background-color: #f9f7f4;
+                    font-family: 'DM Sans', serif;
+                }
+                h2 {
+                    color: #ff3621;
+                }
+                h3 {
+                    margin-left: 15px
+                }
+                ol {
+                    margin-left: -50px; 
+                    font-family:sans-serif; 
+                    color: #618794;
+                }
+                td {
+                    padding: 5px;
+                    border-bottom: 1px solid #ededed;
+                }
+                tr.selected td {
+                    color: white;
+                    background-color: red;
+                }
+                .monofont {font-family: monospace; font-size: 14px}
+                .content {max-width: 800px; margin: auto; padding-left: 50px}
+                .image-icon-inline {display:inline; vertical-align: middle; margin: 0 10px 0 10px}
+                .instructions-div {padding-left: 40px}
+            </style>
+            </head>
+            <body onload="loaded()">
+                <div class="content">
+                    <img src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/db-academy-rgb-1200px_no_bg.png" 
+                        alt="Databricks Learning" 
+                        style="width: 600px; margin-left: 100px; margin-right: 100px">
+                <hr/>
+                <h1>DAWD 02-5-1 - Demo - Delta Commands in Databricks SQL</h1>
+        
+                <div id="inputs">
+                    <p>The two fields below are used to customize queries used in this course. Enter your schema (database) name and username, and press "Enter" to populate necessary information in the queries on this page.</p>
+                    <table>
+                        <tr>
+                            <td style="white-space:nowrap">Schema Name:&nbsp;</td>
+                            <td><input id="schema_name" type="text" style="width:40em" onchange="update();"></td>
+                        </tr><tr>
+                            <td style="white-space:nowrap">Username:&nbsp;</td>
+                            <td><input id="username" type="text" style="width:40em" onchange="update();"></td>
+                        </tr>
+                    </table>
+                </div><hr/>
+<div id="step-1-wrapper" style="width:800px;"><div id="step-1-instruction" style="margin-bottom:1em">    
+
+    <h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+    Lesson Objective</h2>
+    <div class="instructions-div">
+    <p>At the end of this lesson, you will be able to:</p>
+    <ul>
+    <li>Describe how to write commands for working with Delta tables in Databricks SQL</li>
+    </ul></div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-1-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-1-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-1-test-show-btn" type="button" style="display:none;" 
+                        onclick="document.getElementById('step-1-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-1-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-1-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-1-sql" style="width:800px; display: none;">
+            <div>
+                <textarea id="step-1-sql-ta" style="width:100%; padding:10px" rows="2"></textarea>
+                <textarea id="step-1-sql-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-1-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-1-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-2-wrapper" style="width:800px;"><div id="step-2-instruction" style="margin-bottom:1em">    
+
+   <h3>SELECT on Delta Tables</h3>
+    <div class="instructions-div">
+    <p>So far, the SQL commands we have used are generic to most flavors of SQL. In the next few queries, we are going to look at commands that are specific to using <span class="monofont">SELECT</span> on Delta tables.</p>
+    <p>Delta tables keep a log of changes that we can view by running the command below.</p>
+    <ol start="1">
+        <li>Run the code below.</li>
+    </ol>
+    <p>After running <span class="monofont">DESCRIBE HISTORY</span>, we can see that we are on version number 0 and we can see a timestamp of when this change was made.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-2-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-2-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-2-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-2-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-2-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-2-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-2-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-2-sql-ta" style="width:100%; padding:10px" rows="3">USE {schema_name};
+DESCRIBE HISTORY customers;</textarea>
+                <textarea id="step-2-sql-backup" style="display:none;">USE {schema_name};
+DESCRIBE HISTORY customers;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-2-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-2-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-3-wrapper" style="width:800px;"><div id="step-3-instruction" style="margin-bottom:1em">    
+
+   <h3>SELECT on Delta Tables -- Updating the Table</h3>
+    <div class="instructions-div">
+    <p>We are going to make a change to the table.</p>
+    <ol start="2">
+        <li>Run the code below.</li>
+    </ol>
+    <p>The code uses an <span class="monofont">UPDATE</span> statement to make a change to the table. We will be discussing <span class="monofont">UPDATE</span> later on. For now, we just need to understand that a change was made to the table. We also reran our <span class="monofont">DESCRIBE HISTORY</span> command, and note that we have a new version in the log, with a new timestamp.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-3-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-3-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-3-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-3-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-3-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-3-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-3-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-3-sql-ta" style="width:100%; padding:10px" rows="4">USE {schema_name};
+UPDATE customers SET loyalty_segment = 10 WHERE loyalty_segment = 0;
+DESCRIBE HISTORY customers;</textarea>
+                <textarea id="step-3-sql-backup" style="display:none;">USE {schema_name};
+UPDATE customers SET loyalty_segment = 10 WHERE loyalty_segment = 0;
+DESCRIBE HISTORY customers;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-3-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-3-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-4-wrapper" style="width:800px;"><div id="step-4-instruction" style="margin-bottom:1em">    
+
+   <h3>SELECT on Delta Tables -- Updating the Table back to where it was</h3>
+    <div class="instructions-div">
+    <p>We are going to make a change to the table.</p>
+    <ol start="3">
+        <li>Run the code below.</li>
+    </ol>
+    <p>The code uses an <span class="monofont">UPDATE</span> statement to update the loyalty_segment back to its original value. We also reran our <span class="monofont">DESCRIBE HISTORY</span> command, and note that we have a new version in the log, with a new timestamp.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-4-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-4-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-4-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-4-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-4-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-4-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-4-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-4-sql-ta" style="width:100%; padding:10px" rows="4">USE {schema_name};
+UPDATE customers SET loyalty_segment = 0 WHERE loyalty_segment = 10;
+DESCRIBE HISTORY customers;</textarea>
+                <textarea id="step-4-sql-backup" style="display:none;">USE {schema_name};
+UPDATE customers SET loyalty_segment = 0 WHERE loyalty_segment = 10;
+DESCRIBE HISTORY customers;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-4-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-4-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-5-wrapper" style="width:800px;"><div id="step-5-instruction" style="margin-bottom:1em">    
+
+   <h3>SELECT on Delta Tables -- VERSION AS OF</h3>
+    <div class="instructions-div">
+    <p>We can now use a special predicate for use with Delta tables: <span class="monofont">VERSION AS OF</span></p>
+    <ol start="4">
+        <li>Run the code below.</li>
+    </ol>
+    <p>By using <span class="monofont">VERSION AS OF</span>, we can <span class="monofont">SELECT</span> from specific versions of the table. This feature of Delta tables is called "Time Travel," and is very powerful.</p>
+    <p>We can also use <span class="monofont">TIMESTAMP AS OF</span> to <span class="monofont">SELECT</span>based on a table's state on a specific date, and you can find more information in the documentation.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-5-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-5-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-5-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-5-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-5-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-5-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-5-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-5-sql-ta" style="width:100%; padding:10px" rows="3">USE {schema_name};
+SELECT loyalty_segment FROM customers VERSION AS OF 1;</textarea>
+                <textarea id="step-5-sql-backup" style="display:none;">USE {schema_name};
+SELECT loyalty_segment FROM customers VERSION AS OF 1;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-5-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-5-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-6-wrapper" style="width:800px;"><div id="step-6-instruction" style="margin-bottom:1em">    
+
+    <h3>MERGE INTO</h3>
+    <div class="instructions-div">
+    <p>Certainly, there are times when we want to insert new data but ensure we don't re-insert matched data. This is where we use <span class="monofont">MERGE INTO</span>. <span class="monofont">MERGE INTO</span> will merge two tables together, but you specify in which column to look for matched data and what to do when a match is found. Let's run the code and examine the command in more detail.</p>
+    <ol start="5">
+        <li>Run the code below.</li>
+    </ol>
+    <p>We are merging the <span class="monofont">source_suppliers</span> table into the <span class="monofont">suppliers</span> table. After <span class="monofont">ON</span> keyword, we provide the columns on which we want to look for matches. We then state what the command should do when a match is found. In this example, we are inserting the row when the two columns are not matched. Thus, if the columns match, the row is ignored. Notice that the count is the exact same as the original table. This is because the two tables have the exact same data, since we overwrote the <span class="monofont">suppliers</span> table with the <span class="monofont">source_suppliers</span> table earlier in the lesson.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-6-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-6-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-6-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-6-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-6-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-6-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-6-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-6-sql-ta" style="width:100%; padding:10px" rows="7">USE {schema_name};
+MERGE INTO suppliers
+    USING source_suppliers
+    ON suppliers.SUPPLIER_ID = source_suppliers.SUPPLIER_ID
+    WHEN NOT MATCHED THEN INSERT *;
+SELECT count(*) FROM suppliers;</textarea>
+                <textarea id="step-6-sql-backup" style="display:none;">USE {schema_name};
+MERGE INTO suppliers
+    USING source_suppliers
+    ON suppliers.SUPPLIER_ID = source_suppliers.SUPPLIER_ID
+    WHEN NOT MATCHED THEN INSERT *;
+SELECT count(*) FROM suppliers;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-6-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-6-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><script type="text/javascript">
+            
+            function answerIs(self, expected) {
+                if (self.value === "") {
+                    self.style.backgroundColor="#ffffff";
+                } else if (self.value.toLowerCase().includes(expected)) {
+                    self.style.backgroundColor="#7ffe78";
+                } else {
+                    self.style.backgroundColor="#ffb9bb";
+                }
+            }
+        
+            function loaded() {
+                let data = document.cookie;
+                if (data != null && data.trim() !== "") {
+                    let parts = data.split(";");
+                    for (let i = 0; i < parts.length; i++) {
+                        let key_value = parts[i].trim();
+                        let key = key_value.split("=")[0].trim();
+                        let value = key_value.split("=")[1].trim();
+                        if (value !== "n/a") {
+                            if (key === "dawd_schema_name") {
+                                document.getElementById("schema_name").value = value;
+                            } else if (key === "dawd_username") {
+                                document.getElementById("username").value = value;
+                            } else {
+                                console.log("Unknown cookie: "+key);
+                            }
+                        }
+                    }
+                }
+                update();
+            }
+            function update() {      
+                let schema_name = document.getElementById("schema_name").value;
+                let username = document.getElementById("username").value;
+                let ids = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5', 'step-6'];
+
+                if (schema_name === null || username === null || 
+                    schema_name === "" || username === "" || 
+                    schema_name == "n/a" || username === "n/a") {
+                    for (let i = 0; i < ids.length; i++) {
+                        document.getElementById(ids[i]+"-test-ta").disabled = true;
+                        document.getElementById(ids[i]+"-sql-ta").disabled = true;
+
+                        document.getElementById(ids[i]+"-test-btn").disabled = true;
+                        document.getElementById(ids[i]+"-sql-btn").disabled = true;
+
+                        document.getElementById(ids[i]+"-test-ta").value = document.getElementById(ids[i]+"-test-backup").value
+                        document.getElementById(ids[i]+"-sql-ta").value = document.getElementById(ids[i]+"-sql-backup").value
+                    }
+                } else {
+                    let illegals = ["<",">","\"","'","\\","/"]; 
+                    for (let i= 0; i < illegals.length; i++) {
+                        if (schema_name.includes(illegals[i])) {
+                            alert("Please double check your schema (database) name.\nIt cannot not include the " + illegals[i] + " symbol.");
+                            return;
+                        }
+                        if (username.includes(illegals[i])) {
+                            alert("Please double check your username.\nIt cannot not include the " + illegals[i] + " symbol.");
+                            return;
+                        }
+                    }
+                    if (schema_name.includes("@")) {
+                        alert("Please double check your schema (database) name.\nIt should not include the @ symbol.");
+                        return;
+                    }
+                    if (username.includes("@") === false) {
+                        alert("Please double check your username.\nIt should include the @ symbol.");
+                        return;
+                    }
+                    for (let i = 0; i < ids.length; i++) {
+                        document.getElementById(ids[i]+"-test-ta").disabled = false;
+                        document.getElementById(ids[i]+"-sql-ta").disabled = false;
+
+                        document.getElementById(ids[i]+"-test-btn").disabled = false;
+                        document.getElementById(ids[i]+"-sql-btn").disabled = false;
+
+                        document.getElementById(ids[i]+"-test-ta").value = document.getElementById(ids[i]+"-test-backup").value
+                                                                                   .replaceAll("{schema_name}", schema_name)
+                                                                                   .replaceAll("{username}", username);
+
+                        document.getElementById(ids[i]+"-sql-ta").value = document.getElementById(ids[i]+"-sql-backup").value
+                                                                                  .replaceAll("{schema_name}", schema_name)
+                                                                                  .replaceAll("{username}", username);
+
+                        document.cookie = "dawd_schema_name="+schema_name;
+                        document.cookie = "dawd_username="+username;
+                    }
+                }
+            }
+        </script>
+        <hr/>
+        <div>
+            <div>&copy; 2022 Databricks, Inc. All rights reserved.</div>
+            <div>Apache, Apache Spark, Spark and the Spark logo are trademarks of the <a href="https://www.apache.org/">Apache Software Foundation</a>.</div>
+            <div style="margin-top:1em">
+                <div style="float:left">
+                    <a href="https://databricks.com/privacy-policy">Privacy Policy</a> | 
+                    <a href="https://databricks.com/terms-of-use">Terms of Use</a> | <a href="https://help.databricks.com/">Support</a>
+                </div>
+                <div style="float:right">1.2.5</div>
+            </div>               
+        </div></div></body></html>

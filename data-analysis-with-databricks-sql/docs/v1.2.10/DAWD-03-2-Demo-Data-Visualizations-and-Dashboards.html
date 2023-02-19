@@ -1,0 +1,683 @@
+
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="utf-8"/>
+                <title>DAWD 03-2 - Demo - Data Visualizations and Dashboards</title>
+                <link href='https://fonts.googleapis.com/css?family=DM Sans' rel='stylesheet'>
+                <style>
+                body {
+                    background-color: #f9f7f4;
+                    font-family: 'DM Sans', serif;
+                }
+                h2 {
+                    color: #ff3621;
+                }
+                h3 {
+                    margin-left: 15px
+                }
+                ol {
+                    margin-left: -50px; 
+                    font-family:sans-serif; 
+                    color: #618794;
+                }
+                td {
+                    padding: 5px;
+                    border-bottom: 1px solid #ededed;
+                }
+                tr.selected td {
+                    color: white;
+                    background-color: red;
+                }
+                .monofont {font-family: monospace; font-size: 14px}
+                .content {max-width: 800px; margin: auto; padding-left: 50px}
+                .image-icon-inline {display:inline; vertical-align: middle; margin: 0 10px 0 10px}
+                .instructions-div {padding-left: 40px}
+            </style>
+            </head>
+            <body onload="loaded()">
+                <div class="content">
+                    <img src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/db-academy-rgb-1200px_no_bg.png" 
+                        alt="Databricks Learning" 
+                        style="width: 600px; margin-left: 100px; margin-right: 100px">
+                <hr/>
+                <h1>DAWD 03-2 - Demo - Data Visualizations and Dashboards</h1>
+        
+                <div id="inputs">
+                    <p>The two fields below are used to customize queries used in this course. Enter your schema (database) name and username, and press "Enter" to populate necessary information in the queries on this page.</p>
+                    <table>
+                        <tr>
+                            <td style="white-space:nowrap">Schema Name:&nbsp;</td>
+                            <td><input id="schema_name" type="text" style="width:40em" onchange="update();"></td>
+                        </tr><tr>
+                            <td style="white-space:nowrap">Username:&nbsp;</td>
+                            <td><input id="username" type="text" style="width:40em" onchange="update();"></td>
+                        </tr>
+                    </table>
+                </div><hr/>
+<div id="step-1-wrapper" style="width:800px;"><div id="step-1-instruction" style="margin-bottom:1em">    
+
+    <h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+    Lesson Objective</h2>
+    <div class="instructions-div">
+   
+    <p>At the end of this lesson, you will be able to:</p>
+    <ul>
+        <li>Describe how to create basic visualizations using Databricks SQL</li>
+        <li>Describe how to create a dashboard using multiple existing visualizations from Databricks SQL Queries</li>
+        <li>Describe how to parameterize queries and dashboards to customize results and visualizations</li>
+    </ul></div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-1-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-1-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-1-test-show-btn" type="button" style="display:none;" 
+                        onclick="document.getElementById('step-1-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-1-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-1-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-1-sql" style="width:800px; display: none;">
+            <div>
+                <textarea id="step-1-sql-ta" style="width:100%; padding:10px" rows="2"></textarea>
+                <textarea id="step-1-sql-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-1-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-1-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-2-wrapper" style="width:800px;"><div id="step-2-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+The Counter</h2>
+    <div class="instructions-div">
+    <p>The Counter visualization is one of the simplest visualizations in Databricks SQL. It displays a single number by default, but it can also be configured to display a "goal" number. In this example, we are going to configure a sum of completed sales, along with a "Sales Goal." The query calculates a sum of total sales and also provides a hard-coded sales goal column.</p>
+    <p>Complete the following:</p>
+    <ol>
+        <li>Open a new query tab, and run the query below</li>
+        <li>Save the query as "Count Total Sales"</li>
+    </ol>
+    <p>Visualizations are stored with the queries that generate data for them. Although we probably could pick a better name than "Counter", this will help us when we build our dashboard later in this lesson. Note also that we can have multiple visualizations attached to a single query</p>
+    <ol start="3">
+        <li>In the query results section, hover over the "+" symbol, and click "Visualization"</li>
+        <li>Select "Counter" as the visualization type</li>
+        <li>For "Counter Label" type "Total Sales"</li>
+        <li>For "Counter Value Column" make sure the column "Total_Sales" is selected</li>
+        <li>For "Target Value Column" choose "Sales Goal"</li>
+    </ol>
+    <p>Note that we can configure the counter to count rows for us if we did not aggregate our data in the query itself.</p>
+    <ol start="8">
+        <li>Click the "Format" tab</li>
+        <li>Optional: Change the decimal character and thousands separator</li>
+        <li>"Total Sales" is a dollar figure, so add "$" to "Formatting String Prefix"</li>
+        <li>Turn the switch, "Format Target Value" to on</li>
+        <li>Click "Save" in the lower-right corner</li>
+        <li>Click the name of the visualization (the name of the tab) and change the name to "Total Sales"</li>
+        <li>Make sure the query is Saved</li>
+    </ol>
+    <p></p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-2-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-2-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-2-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-2-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-2-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-2-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-2-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-2-sql-ta" style="width:100%; padding:10px" rows="4">USE {schema_name};
+SELECT sum(total_price) AS Total_Sales, 3000000 AS Sales_Goal 
+    FROM sales;</textarea>
+                <textarea id="step-2-sql-backup" style="display:none;">USE {schema_name};
+SELECT sum(total_price) AS Total_Sales, 3000000 AS Sales_Goal 
+    FROM sales;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-2-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-2-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-3-wrapper" style="width:800px;"><div id="step-3-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+The Bar Chart</h2>
+    <div class="instructions-div">
+    <p>One of the most often used visualizations in data analytics is the Bar Chart. Databricks SQL supports an variety of customization options to make bar charts look beautiful. In this example, we are going to configure a bar chart </p>
+    <p>Complete the following:</p>
+    <ol>
+        <li>Open a new query tab, and run the query below</li>
+        <li>Save the query as "Sales Over Three Months"</li>
+        <li>In the query results section, hover over the "+" symbol, and click "Visualization"</li>
+        <li>Select "Bar" as the visualization type</li>
+        <li>For "X Column" choose "Month"</li>
+        <li>For "Y Columns" click "Add column" and select "Total Sales" and "Sum"</li>
+        <li>Click "Add column" again and select "Total Sales" and "Count"</li>
+        <li>Click the "Y Axis" tab and type "Dollars" in the "Name" field (Left Y Axis)</li>
+        <li>Click the "Series" tab and type "Total Sales" in the first "Label" field</li>
+        <li>Type "Number of Sales" in the second "Label" field and change "Type" to "Line"</li>
+        <li>Click "Save" in the lower-right corner</li>
+        <li>Click the name of the visualization (the name of the tab) and change the name to "Sales by Month"</li>
+        <li>Make sure the query is Saved</li>
+    </ol>
+    <p>As we can see from the visualization, the number of sales in August and October was low, but the dollar amounts of those sales was high. The opposite is true in September.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-3-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-3-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-3-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-3-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-3-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-3-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-3-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-3-sql-ta" style="width:100%; padding:10px" rows="6">USE {schema_name};
+SELECT customer_name, total_price AS Total_Sales, date_format(order_date, "MM") AS Month, product_category 
+    FROM sales 
+    WHERE order_date >= to_date('2019-08-01') 
+    AND order_date <= to_date('2019-10-31');</textarea>
+                <textarea id="step-3-sql-backup" style="display:none;">USE {schema_name};
+SELECT customer_name, total_price AS Total_Sales, date_format(order_date, "MM") AS Month, product_category 
+    FROM sales 
+    WHERE order_date >= to_date('2019-08-01') 
+    AND order_date <= to_date('2019-10-31');</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-3-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-3-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-4-wrapper" style="width:800px;"><div id="step-4-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+The Stacked Bar Chart</h2>
+    <div class="instructions-div">
+    <p>We can glean more data from the same query by adding a second visualization.</p>
+    <p>Complete the following:</p>
+    <ol>
+        <li>Hover over the "+" symbol, and click "Visualization"</li>
+        <li>Change "Visualization Type" to "Bar"</li>
+        <li>For "X Column" choose "product_category"</li>
+        <li>Add two Y Columns and change both to "Total_Sales". Change the first to "Average" and the second to "Min"</li>
+        <li>Change "Stacking" to "Stack"</li>
+        <li>On the "X Axis" tab, change the name to "Product Category"</li>
+        <li>On the "Y Axis" tab, change the name to "Dollars"</li>
+        <li>On the "Series" tab, change the first row Label to "Average Sales" and the second row to "Minimum Sales"</li>
+        <li>Click "Save" in the lower-right corner</li>
+        <li>Click the name of the visualization (the name of the tab) and change the name to "Sales by Product Category"</li>
+        <li>Make sure the query is Saved</li>
+    </ol>
+    <p>This visualization shows that, although the "Reagate" category has the highest minimum sales figure, it has the lowest average.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-4-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-4-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-4-test-show-btn" type="button" style="display:none;" 
+                        onclick="document.getElementById('step-4-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-4-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-4-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-4-sql" style="width:800px; display: none;">
+            <div>
+                <textarea id="step-4-sql-ta" style="width:100%; padding:10px" rows="2"></textarea>
+                <textarea id="step-4-sql-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-4-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-4-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-5-wrapper" style="width:800px;"><div id="step-5-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Maps - Choropleth</h2>
+    <div class="instructions-div">
+    <p>Databricks SQL has two map visualizations you can use to plot address and geolocation data: choropleth and markers. The choropleth map visualization uses color to show the count of a criterion within a specific geographic area. In this example, we are going to use customer address data to plot the number of customers in each U.S. state.</p> 
+    <p>To make a choropleth map, complete the following:</p>
+    <ol>
+        <li>Open a new query tab, and run the query below</li>
+        <li>Save the query as "Count Customers by State"</li>
+        <li>Hover over the "+" symbol, and click "Visualization"</li>
+        <li>Select "Map (Choropleth)" as the visualization type</li>
+        <li>In the "General" tab, change "Map" to "USA", "Key Column" to state, "Target Field" to "USPS Abbreviation", and "Value Column" to "count(customer_id)"</li>
+        <li>Click "Save" in the lower-right corner</li>
+        <li>Click the name of the visualization (the name of the tab) and change the name to "Most Active States"</li>
+        <li>Make sure the query is Saved</li>
+    </ol>
+    
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-5-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-5-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-5-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-5-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-5-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-5-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-5-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-5-sql-ta" style="width:100%; padding:10px" rows="4">USE {schema_name};
+SELECT state, count(customer_id) FROM customers
+    GROUP BY state;</textarea>
+                <textarea id="step-5-sql-backup" style="display:none;">USE {schema_name};
+SELECT state, count(customer_id) FROM customers
+    GROUP BY state;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-5-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-5-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-6-wrapper" style="width:800px;"><div id="step-6-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Maps - Markers</h2>
+    <div class="instructions-div">
+    <p>The Map (Markers) visualization type plots points on a map that signify a specific location. In this example, we have latitude and longitude data for our customer locations. We will use this to plot those locations on a map.</p> 
+    <p>Complete the following:</p>
+    <ol>
+        <li>Open a new query tab, and run the query below</li>
+        <li>Save the query as "All Customers"</li>
+        <li>Hover over the "+" symbol, and click "Visualization"</li>
+        <li>Select "Map (Markers)" as the "Visualization Type"</li>
+        <li>In the General tab, change "Latitude Column" to "lat", "Longitude Column" to "lon", and "Group By" to "state"</li>
+        <li>On the "Format" tab, enable tooltips and type "&lcub;&lcub;customer_name&rcub;&rcub;" in the "Tooltip template" field</li>
+    </ol>
+    <p>Note: Because we are on a 2x-Small Warehouse, do not uncheck "Cluster Markers" in the "Styles" tab. The map refresh process will take a very long time to update.</p> 
+    <ol>
+        <li>Click "Save" in the lower-right corner</li>
+        <li>Click the name of the visualization (the name of the tab) and change the name to "Customer Locations"</li>
+        <li>Make sure the query is Saved</li>
+    </ol> 
+    
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-6-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-6-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-6-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-6-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-6-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-6-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-6-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-6-sql-ta" style="width:100%; padding:10px" rows="3">USE {schema_name};
+SELECT * FROM customers;</textarea>
+                <textarea id="step-6-sql-backup" style="display:none;">USE {schema_name};
+SELECT * FROM customers;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-6-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-6-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-7-wrapper" style="width:800px;"><div id="step-7-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Dashboards</h2>
+    <div class="instructions-div">
+    <p>We are now going to combine all the visualizations we created above into a dashboard that will display them all at once and that we can put on a refresh schedule to keep the data that underlies each visualization up-to-date. In a future lesson, we will talk about setting a refresh schedule and subscribing stakeholders to the dashboard's output, so they can always have the newest information.</p>
+    <p>Complete the following:</p>
+    <ol>      
+        <li>Click "Dashboards" in the sidebar menu</li>
+        <li>Click "Create Dashboard"</li>
+        <li>Name the dashboard "Retail Organization"</li>
+        <li>Click "Add", and click "Visualization"</li>
+    </ol>
+    <p>We are presented with a list of queries that have been saved. Although we named our queries based on the type of visualization we made, it makes more sense to name a query based on what it does.</p>
+    <ol start="5">
+        <li>Click "Count Total Sales"</li>
+        <li>Leave "Select existing visualization" selected, and drop down the list directly below. Note we have the results table from our query and our counter visualization, "Total Sales" available to us. Select "Total Sales"</li>
+        <li>Change "Title" to "Total Sales"</li>
+        <li>Optional: write a description</li>
+        <li>Click "Add to dashboard"</li>
+        <li>Repeat steps 4-9 with the "Sales Over Three Months" query ("Sales by Month" and "Sales by Product Category"), "Count Customers by State" query ("Most Active States"), and "All Customers" query ("Customer Locations")</li>
+    </ol>
+    <p>You should have five visualizations in the dashboard</p>
+    <ol start="11">
+        <li>Click "Add", then "Text Box", and type "# Customers and Sales" in the "Edit:" box</li>
+    </ol>
+    <p>Note that text boxes support Markdown.</p>
+    <ol start="12">
+        <li>Click "Add to dashboard"</li>
+        <li>Optional: Move the visualizations around by clicking and dragging each one</li>
+        <li>Optional: Resize each visualization by dragging the lower-right corner of the visualization</li>
+        <li>Optional: Click "Colors" to change the color palette used by visualizations in the dashboard</li>
+        <li>Click "Done Editing" in the upper-right corner</li>
+        <li>Run every query and refresh all visualizations all at once by clicking "Refresh"</li>
+    </ol> 
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-7-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-7-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-7-test-show-btn" type="button" style="display:none;" 
+                        onclick="document.getElementById('step-7-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-7-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-7-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-7-sql" style="width:800px; display: none;">
+            <div>
+                <textarea id="step-7-sql-ta" style="width:100%; padding:10px" rows="2"></textarea>
+                <textarea id="step-7-sql-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-7-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-7-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-8-wrapper" style="width:800px;"><div id="step-8-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Parameterized Queries</h2>
+    <div class="instructions-div">
+    <p>Before we leave this lesson, let's talk about a customization feature we can apply to our queries to give them more flexibility. Query parameters allow us to make changes to our queries without requiring new code to be written.</p>
+    <p>Complete the following:</p>
+    <ol>
+        <li>Go back to the Query Editor and start a new query</li>
+        <li>Paste the query below into the editor and save the query as "Get Product Category"</li>
+</ol>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-8-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-8-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-8-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-8-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-8-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-8-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-8-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-8-sql-ta" style="width:100%; padding:10px" rows="3">USE {schema_name};
+SELECT DISTINCT product_category FROM sales;</textarea>
+                <textarea id="step-8-sql-backup" style="display:none;">USE {schema_name};
+SELECT DISTINCT product_category FROM sales;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-8-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-8-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-9-wrapper" style="width:800px;"><div id="step-9-instruction" style="margin-bottom:1em">    
+
+<h3>Writing a Query with Parameters</h3>
+    <div class="instructions-div">
+    <p>Now that we have a query that pulls all product categories from the <span class="monofont">Sales</span> table, let's use this query as a parameter in a second query.</p>
+    <p>Complete the following:</p>
+    <ol start="3">
+        <li>Start a new query, and paste the code below in the editor</li>
+    </ol>
+    <p>Note that the query has empty single quotes.</p>
+    <ol start="4">
+        <li>Place your cursor in-between the single quotes, hover over the "+" symbol, and click "Parameter"</li>
+        <li>Input "category" for the "Keyword" field</li>
+        <li>Drop down "Type" and choose "Query Based Dropdown List"</li>
+        <li>For "Query" choose the query we created above: "Get Product Category"</li>
+        <li>Click "Add Parameter"</li>
+        <li>Save the query as "Total Sales by Product Category"</li>
+    </ol>
+    <p>Note two things: First, we now have a set of double curly braces that contain the word "category". This is where are query parameter was inserted. Finally, note the dropdown list we how have just above the query results window.</p>
+    <ol start="10">
+        <li>Open the dropdown list and choose a Category from the list</li>
+        <li>Click "Apply Changes"</li>
+    </ol>
+    <p>The query is rerun with the chosen product category replacing the location of the query parameter in the query. Thus, we see the Total Sales of the Category we chose.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-9-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-9-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-9-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-9-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-9-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-9-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>  
+          
+        <div id="step-9-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-9-sql-ta" style="width:100%; padding:10px" rows="4">USE {schema_name};
+SELECT sum(total_price) AS Total_Sales FROM sales
+    WHERE product_category = '';</textarea>
+                <textarea id="step-9-sql-backup" style="display:none;">USE {schema_name};
+SELECT sum(total_price) AS Total_Sales FROM sales
+    WHERE product_category = '';</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-9-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-9-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><script type="text/javascript">
+            
+            function answerIs(self, expected) {
+                if (self.value === "") {
+                    self.style.backgroundColor="#ffffff";
+                } else if (self.value.toLowerCase().includes(expected)) {
+                    self.style.backgroundColor="#7ffe78";
+                } else {
+                    self.style.backgroundColor="#ffb9bb";
+                }
+            }
+        
+            function loaded() {
+                let data = document.cookie;
+                if (data != null && data.trim() !== "") {
+                    let parts = data.split(";");
+                    for (let i = 0; i < parts.length; i++) {
+                        let key_value = parts[i].trim();
+                        let key = key_value.split("=")[0].trim();
+                        let value = key_value.split("=")[1].trim();
+                        if (value !== "n/a") {
+                            if (key === "dawd_schema_name") {
+                                document.getElementById("schema_name").value = value;
+                            } else if (key === "dawd_username") {
+                                document.getElementById("username").value = value;
+                            } else {
+                                console.log("Unknown cookie: "+key);
+                            }
+                        }
+                    }
+                }
+                update();
+            }
+            function update() {      
+                let schema_name = document.getElementById("schema_name").value;
+                let username = document.getElementById("username").value;
+                let ids = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5', 'step-6', 'step-7', 'step-8', 'step-9'];
+
+                if (schema_name === null || username === null || 
+                    schema_name === "" || username === "") {
+                    for (let i = 0; i < ids.length; i++) {
+                        document.getElementById(ids[i]+"-test-ta").disabled = true;
+                        document.getElementById(ids[i]+"-sql-ta").disabled = true;
+
+                        document.getElementById(ids[i]+"-test-btn").disabled = true;
+                        document.getElementById(ids[i]+"-sql-btn").disabled = true;
+
+                        document.getElementById(ids[i]+"-test-ta").value = document.getElementById(ids[i]+"-test-backup").value
+                        document.getElementById(ids[i]+"-sql-ta").value = document.getElementById(ids[i]+"-sql-backup").value
+                    }
+                } else if (schema_name == "n/a" || username === "n/a") {
+                    for (let i = 0; i < ids.length; i++) {
+                        document.getElementById(ids[i]+"-test-ta").disabled = false;
+                        document.getElementById(ids[i]+"-sql-ta").disabled = false;
+
+                        document.getElementById(ids[i]+"-test-btn").disabled = false;
+                        document.getElementById(ids[i]+"-sql-btn").disabled = false;
+                    }
+                } else {
+                    let illegals = ["<",">","\"","'","\\","/"]; 
+                    for (let i= 0; i < illegals.length; i++) {
+                        if (schema_name.includes(illegals[i])) {
+                            alert("Please double check your schema (database) name.\nIt cannot not include the " + illegals[i] + " symbol.");
+                            return;
+                        }
+                        if (username.includes(illegals[i])) {
+                            alert("Please double check your username.\nIt cannot not include the " + illegals[i] + " symbol.");
+                            return;
+                        }
+                    }
+                    if (schema_name.includes("@")) {
+                        alert("Please double check your schema (database) name.\nIt should not include the @ symbol.");
+                        return;
+                    }
+                    if (username.includes("@") === false) {
+                        alert("Please double check your username.\nIt should include the @ symbol.");
+                        return;
+                    }
+                    for (let i = 0; i < ids.length; i++) {
+                        document.getElementById(ids[i]+"-test-ta").disabled = false;
+                        document.getElementById(ids[i]+"-sql-ta").disabled = false;
+
+                        document.getElementById(ids[i]+"-test-btn").disabled = false;
+                        document.getElementById(ids[i]+"-sql-btn").disabled = false;
+
+                        document.getElementById(ids[i]+"-test-ta").value = document.getElementById(ids[i]+"-test-backup").value
+                                                                                   .replaceAll("{schema_name}", schema_name)
+                                                                                   .replaceAll("{username}", username);
+
+                        document.getElementById(ids[i]+"-sql-ta").value = document.getElementById(ids[i]+"-sql-backup").value
+                                                                                  .replaceAll("{schema_name}", schema_name)
+                                                                                  .replaceAll("{username}", username);
+
+                        document.cookie = "dawd_schema_name="+schema_name;
+                        document.cookie = "dawd_username="+username;
+                    }
+                }
+            }
+        </script>
+        <hr/>
+        <div>
+            <div>&copy; 2023 Databricks, Inc. All rights reserved.</div>
+            <div>Apache, Apache Spark, Spark and the Spark logo are trademarks of the <a href="https://www.apache.org/">Apache Software Foundation</a>.</div>
+            <div style="margin-top:1em">
+                <div style="float:left">
+                    <a href="https://databricks.com/privacy-policy">Privacy Policy</a> | 
+                    <a href="https://databricks.com/terms-of-use">Terms of Use</a> | <a href="https://help.databricks.com/">Support</a>
+                </div>
+                <div style="float:right">1.2.10</div>
+            </div>               
+        </div></div></body></html>

@@ -1,0 +1,857 @@
+
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="utf-8"/>
+                <title>DAWD 02-2 - Demo - Ingesting Data</title>
+                <link href='https://fonts.googleapis.com/css?family=DM Sans' rel='stylesheet'>
+                <style>
+                body {
+                    background-color: #f9f7f4;
+                    font-family: 'DM Sans', serif;
+                }
+                h2 {
+                    color: #ff3621;
+                }
+                h3 {
+                    margin-left: 15px
+                }
+                ol {
+                    margin-left: -50px; 
+                    font-family:sans-serif; 
+                    color: #618794;
+                }
+                td {
+                    padding: 5px;
+                    border-bottom: 1px solid #ededed;
+                }
+                tr.selected td {
+                    color: white;
+                    background-color: red;
+                }
+                .monofont {font-family: monospace; font-size: 14px}
+                .content {max-width: 800px; margin: auto; padding-left: 50px}
+                .image-icon-inline {display:inline; vertical-align: middle; margin: 0 10px 0 10px}
+                .instructions-div {padding-left: 40px}
+            </style>
+            </head>
+            <body onload="loaded()">
+                <div class="content">
+                    <img src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/db-academy-rgb-1200px_no_bg.png" 
+                        alt="Databricks Learning" 
+                        style="width: 600px; margin-left: 100px; margin-right: 100px">
+                <hr/>
+                <h1>DAWD 02-2 - Demo - Ingesting Data</h1>
+        
+                <div id="inputs">
+                    <p>The two fields below are used to customize queries used in this course. Enter your schema (database) name and username, and press "Enter" to populate necessary information in the queries on this page.</p>
+                    <table>
+                        <tr>
+                            <td style="white-space:nowrap">Schema Name:&nbsp;</td>
+                            <td><input id="schema_name" type="text" style="width:40em" onchange="update();"></td>
+                        </tr><tr>
+                            <td style="white-space:nowrap">Username:&nbsp;</td>
+                            <td><input id="username" type="text" style="width:40em" onchange="update();"></td>
+                        </tr>
+                    </table>
+                </div><hr/>
+<div id="step-1-wrapper" style="width:800px;"><div id="step-1-instruction" style="margin-bottom:1em">    
+
+    <h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+    Lesson Objective</h2>
+    <div class="instructions-div">
+    <p>At the end of this lesson, you will be able to:</p>
+    <ul>
+    <li>Describe how to ingest data</li>
+    </ul></div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-1-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-1-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-1-test-show-btn" type="button" style="display:none;" 
+                        onclick="document.getElementById('step-1-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-1-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-1-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-1-sql" style="width:800px; display: none;">
+            <div>
+                <textarea id="step-1-sql-ta" style="width:100%; padding:10px" rows="2"></textarea>
+                <textarea id="step-1-sql-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-1-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-1-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-2-wrapper" style="width:800px;"><div id="step-2-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Ingest Data Using Databricks SQL</h2>
+    <div class="instructions-div">
+    <p>We can ingest data into Databricks SQL in a variety of ways. In this first example, we are going to start with a .csv file that exists in an object store and finish with a Delta table that contains all the data from that .csv file.</p>
+    <ol>
+        <li>Run the code below.</li>
+    </ol>
+    <p>There are several things to note in these commands:</p>
+    <ul>
+        <li>Since the file we are ingesting is a .csv file, we state <span class="monofont">USING csv</span></li>
+        <li>We are setting three options:
+            <ul>
+                <li>path - the path to the object store</li>
+                <li>header - whether or not the .csv file contains a header row</li>
+                <li>inferSchema - whether or not Databricks should infer the schema from the contents of the file</li>
+             </ul></li>
+        <li>We are creating a second table, with default settings from the contents of the first table, using a CTAS statement.</li>
+    </ul>
+    <p>The reason we are creating a second table that is a copy of the first table is because we want the resulting table to be in Delta format, which gives us the most options. Because the second table uses default options, it will be a Delta table.</p>
+    <p>We can see this in the Data Explorer</p>
+    <ol start="2">
+        <li>In the sidebar menu, click "Data"</li>
+        <li>If needed, select your schema in the dropdown</li>
+        <li>Select <span class="monofont">web_events_csv</span> and note it is a CSV table</li>
+        <li>Select <span class="monofont">web_events</span> and note it is a Delta table</li>
+    </ol>
+    <p>Once we are finished with the <span class="monofont">web_events_csv</span> table, we can drop it from the schema.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-2-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-2-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-2-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-2-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-2-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-2-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-2-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-2-sql-ta" style="width:100%; padding:10px" rows="13">USE {schema_name};
+DROP TABLE IF EXISTS web_events_csv;
+CREATE TABLE web_events_csv 
+    USING csv 
+    OPTIONS (
+        path='wasb://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/web_events/web_events.csv',
+        header="true",
+        inferSchema="true"
+    );
+DROP TABLE IF EXISTS web_events;
+CREATE OR REPLACE TABLE web_events AS
+    SELECT * FROM web_events_csv;</textarea>
+                <textarea id="step-2-sql-backup" style="display:none;">USE {schema_name};
+DROP TABLE IF EXISTS web_events_csv;
+CREATE TABLE web_events_csv 
+    USING csv 
+    OPTIONS (
+        path='wasb://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/web_events/web_events.csv',
+        header="true",
+        inferSchema="true"
+    );
+DROP TABLE IF EXISTS web_events;
+CREATE OR REPLACE TABLE web_events AS
+    SELECT * FROM web_events_csv;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-2-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-2-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-3-wrapper" style="width:800px;"><div id="step-3-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+The LOCATION Keyword</h2>
+    <div class="instructions-div">
+    <p>For those of you taking the full course, we talked about the <span class="monofont">LOCATION</span> keyword in the last module. This section is a review, and you can safely skip it. If your taking the short course, or if you need to review the use of <span class="monofont">LOCATION</span>, keep reading.</p>
+    <p>We can ingest data in-place using the <span class="monofont">LOCATION</span> keyword to create an external/unmanaged table. There is a dataset, called Sales, that is currently in an object store. Running the command below creates an external table that is associated with this dataset.</p>
+    <ol start="6">
+        <li>Run the code below.</li>
+    </ol>
+    <p>The table's data is stored in the external location, but the table itself is registered in the metastore. We can query the data just like any other table in the schema.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-3-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-3-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-3-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-3-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-3-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-3-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-3-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-3-sql-ta" style="width:100%; padding:10px" rows="6">USE {schema_name};
+DROP TABLE IF EXISTS external_table;
+CREATE TABLE external_table
+    LOCATION 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/retail-org/sales/sales_delta';
+SELECT * FROM external_table;</textarea>
+                <textarea id="step-3-sql-backup" style="display:none;">USE {schema_name};
+DROP TABLE IF EXISTS external_table;
+CREATE TABLE external_table
+    LOCATION 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/retail-org/sales/sales_delta';
+SELECT * FROM external_table;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-3-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-3-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-4-wrapper" style="width:800px;"><div id="step-4-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+COPY INTO</h2>
+    <div class="instructions-div">
+    <p>We use <span class="monofont">COPY INTO</span> to load data from a file location into a Delta table. <span class="monofont">COPY INTO</span> is a re-triable and idempotent operation, so files in the source location that have already been loaded are skipped.</p>
+    <ol start="7">
+        <li>Run the code below.</li>
+    </ol>
+    <p>The first command creates an empty Delta table. Note that you must specify a schema when creating an empty Delta table.</p>
+    <p>The second command copies data from an object store location into the <span class="monofont">gym_logs</span> table. Note that the file type for the files in the object store location is specified as "JSON". The last part of the <span class="monofont">COPY INTO</span> command is a file name, a list of file names, or a directory of files.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-4-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-4-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-4-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-4-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-4-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-4-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-4-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-4-sql-ta" style="width:100%; padding:10px" rows="8">USE {schema_name};
+DROP TABLE IF EXISTS gym_logs;
+CREATE TABLE gym_logs (first_timestamp DOUBLE, gym Long, last_timestamp DOUBLE, mac STRING);
+COPY INTO gym_logs 
+    FROM 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/gym_logs/gym_logs_json'
+    FILEFORMAT = JSON
+    FILES = ('20191201_2.json');</textarea>
+                <textarea id="step-4-sql-backup" style="display:none;">USE {schema_name};
+DROP TABLE IF EXISTS gym_logs;
+CREATE TABLE gym_logs (first_timestamp DOUBLE, gym Long, last_timestamp DOUBLE, mac STRING);
+COPY INTO gym_logs 
+    FROM 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/gym_logs/gym_logs_json'
+    FILEFORMAT = JSON
+    FILES = ('20191201_2.json');</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-4-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-4-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-5-wrapper" style="width:800px;"><div id="step-5-instruction" style="margin-bottom:1em">    
+
+    <div class="instructions-div">
+    <p>We can run the same <span class="monofont">COPY INTO</span> command as above and add a second one. The first one will be skipped because the file has already been loaded.</p>
+    <ol start="8">
+        <li>Run the code below.</li>
+    </ol>
+    <p></p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-5-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-5-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-5-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-5-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-5-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-5-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-5-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-5-sql-ta" style="width:100%; padding:10px" rows="10">USE {schema_name};
+COPY INTO gym_logs 
+    FROM 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/gym_logs/gym_logs_json'
+    FILEFORMAT = JSON
+    FILES = ('20191201_2.json');
+COPY INTO gym_logs
+    FROM 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/gym_logs/gym_logs_json'
+    FILEFORMAT = JSON
+    FILES = ('20191201_3.json');</textarea>
+                <textarea id="step-5-sql-backup" style="display:none;">USE {schema_name};
+COPY INTO gym_logs 
+    FROM 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/gym_logs/gym_logs_json'
+    FILEFORMAT = JSON
+    FILES = ('20191201_2.json');
+COPY INTO gym_logs
+    FROM 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/gym_logs/gym_logs_json'
+    FILEFORMAT = JSON
+    FILES = ('20191201_3.json');</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-5-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-5-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-6-wrapper" style="width:800px;"><div id="step-6-instruction" style="margin-bottom:1em">    
+
+    <div class="instructions-div">
+    <p>Do a count on the table you just populated using COPY INTO. Then, rerun the COPY INTO code above, and do another count. Notice that 'COPY INTO' will not input data from files that have already been ingested using COPY INTO. The count stays the same. </p>
+    <ol start="9">
+        <li>Run the code below.</li>
+    </ol>
+    <p></p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-6-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-6-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-6-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-6-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-6-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-6-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-6-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-6-sql-ta" style="width:100%; padding:10px" rows="3">USE {schema_name};
+SELECT count(*) FROM gym_logs;</textarea>
+                <textarea id="step-6-sql-backup" style="display:none;">USE {schema_name};
+SELECT count(*) FROM gym_logs;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-6-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-6-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-7-wrapper" style="width:800px;"><div id="step-7-instruction" style="margin-bottom:1em">    
+
+    <div class="instructions-div">
+    <p>Next, let's add another <span class="monofont">COPY INTO</span> command, but this time, we will use the <span class="monofont">PATTERN</span> option. This allows us to load any file that fits a specific pattern.</p>
+    <ol start="10">
+        <li>Run the code below.</li>
+    </ol>
+    <p></p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-7-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-7-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-7-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-7-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-7-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-7-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-7-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-7-sql-ta" style="width:100%; padding:10px" rows="14">USE {schema_name};
+COPY INTO gym_logs 
+    FROM 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/gym_logs/gym_logs_json'
+    FILEFORMAT = JSON
+    FILES = ('20191201_2.json');
+COPY INTO gym_logs
+    FROM 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/gym_logs/gym_logs_json'
+    FILEFORMAT = JSON
+    FILES = ('20191201_3.json');
+COPY INTO gym_logs 
+    FROM 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/gym_logs/gym_logs_json'
+    FILEFORMAT = JSON
+    PATTERN = '20191201_[0-9].json';</textarea>
+                <textarea id="step-7-sql-backup" style="display:none;">USE {schema_name};
+COPY INTO gym_logs 
+    FROM 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/gym_logs/gym_logs_json'
+    FILEFORMAT = JSON
+    FILES = ('20191201_2.json');
+COPY INTO gym_logs
+    FROM 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/gym_logs/gym_logs_json'
+    FILEFORMAT = JSON
+    FILES = ('20191201_3.json');
+COPY INTO gym_logs 
+    FROM 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v02/gym_logs/gym_logs_json'
+    FILEFORMAT = JSON
+    PATTERN = '20191201_[0-9].json';</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-7-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-7-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-8-wrapper" style="width:800px;"><div id="step-8-instruction" style="margin-bottom:1em">    
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Privileges</h2>
+    <div class="instructions-div">
+    <p>Data object owners and Databricks administrators can grant and revoke a variety of privileges on securable objects. These objects include functions, files, tables, views, and more. These privileges can be granted using SQL or using the Data Explorer.</p>
+    <ol start="11">
+        <li>Run the code below.</li>
+    </ol>
+    <p>This statement returns the privileges granted on this schema.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-8-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-8-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-8-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-8-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-8-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-8-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-8-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-8-sql-ta" style="width:100%; padding:10px" rows="2">SHOW GRANT ON SCHEMA {schema_name};</textarea>
+                <textarea id="step-8-sql-backup" style="display:none;">SHOW GRANT ON SCHEMA {schema_name};</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-8-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-8-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-9-wrapper" style="width:800px;"><div id="step-9-instruction" style="margin-bottom:1em">    
+
+<h3>GRANT</h3>
+    <div class="instructions-div">
+    <p>If we wish to grant privileges to a user, we can run <span, class="monofont">GRANT</span> commands for the specific privileges we wish to grant. The privileges available include <span, class="monofont">USAGE</span>, <span, class="monofont">SELECT</span>, <span, class="monofont">CREATE</span>, <span, class="monofont">READ FILES</span>, and more.</p>
+    <ol start="12">
+        <li>Run the code below.</li>
+    </ol>
+    <p>We need to start by granting <span, class="monofont">USAGE</span> to a user. We can then grant other privileges. If we want to grant all privileges, we can use <span, class="monofont">GRANT ALL PRIVILEGES</span>.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-9-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-9-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-9-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-9-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-9-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-9-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-9-sql" style="width:800px; ">
+            <div>
+                <textarea id="step-9-sql-ta" style="width:100%; padding:10px" rows="3">GRANT USAGE ON SCHEMA {schema_name} TO `{username}`;
+GRANT SELECT ON SCHEMA {schema_name} TO `users`;</textarea>
+                <textarea id="step-9-sql-backup" style="display:none;">GRANT USAGE ON SCHEMA {schema_name} TO `{username}`;
+GRANT SELECT ON SCHEMA {schema_name} TO `users`;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-9-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-9-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-10-wrapper" style="width:800px;"><div id="step-10-instruction" style="margin-bottom:1em">    
+
+<h3>REVOKE</h3>
+    <div class="instructions-div">
+    <p>We can revoke privileges on securable objects in the exact same way.</p>
+    <p>We don't want to actually run the command because we don't want to try to revoke our own privileges, but here is the command:</p>
+    <p><span, class="monofont">REVOKE ALL PRIVILEGES ON SCHEMA `schema_name` from `user_name`;</span></p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-10-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-10-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-10-test-show-btn" type="button" style="display:none;" 
+                        onclick="document.getElementById('step-10-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-10-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-10-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-10-sql" style="width:800px; display: none;">
+            <div>
+                <textarea id="step-10-sql-ta" style="width:100%; padding:10px" rows="2"></textarea>
+                <textarea id="step-10-sql-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-10-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-10-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-11-wrapper" style="width:800px;"><div id="step-11-instruction" style="margin-bottom:1em">    
+
+<h3>Data Explorer</h3>
+    <div class="instructions-div">
+    <p>While we can certainly grant and revoke privileges using SQL, we can also use the Data Explorer.</p>
+    <ol start="13">
+        <li>Click "Data" in the sidebar menu.</li>
+        <li>If needed, select your schema in the dropdown</li>
+        <li>Select the table, "gym_logs" from the list</li>
+        <li>Click "Permissions"</li>
+        <li>Use the "Grant" and "Revoke" buttons to change permission settings.</li>
+    </ol>
+    <p>Note that students can view and change permissions on this table because, since they created the table, they are the owner. Only owners and admins can view and change permissions.</p>
+    <ol start="18">
+        <li>Select the "flight_delays" table.</li>
+        <li>Click "Permissions"</li>
+    </ol>
+    <p>Note that, since the student is not the owner of the table, they can't view and change permissions.</p>
+    </div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-11-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-11-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-11-test-show-btn" type="button" style="display:none;" 
+                        onclick="document.getElementById('step-11-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-11-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-11-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-11-sql" style="width:800px; display: none;">
+            <div>
+                <textarea id="step-11-sql-ta" style="width:100%; padding:10px" rows="2"></textarea>
+                <textarea id="step-11-sql-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-11-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-11-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><script type="text/javascript">
+            
+            function answerIs(self, expected) {
+                if (self.value === "") {
+                    self.style.backgroundColor="#ffffff";
+                } else if (self.value.toLowerCase().includes(expected)) {
+                    self.style.backgroundColor="#7ffe78";
+                } else {
+                    self.style.backgroundColor="#ffb9bb";
+                }
+            }
+        
+            function loaded() {
+                let data = document.cookie;
+                if (data != null && data.trim() !== "") {
+                    let parts = data.split(";");
+                    for (let i = 0; i < parts.length; i++) {
+                        let key_value = parts[i].trim();
+                        let key = key_value.split("=")[0].trim();
+                        let value = key_value.split("=")[1].trim();
+                        if (value !== "n/a") {
+                            if (key === "dawd_schema_name") {
+                                document.getElementById("schema_name").value = value;
+                            } else if (key === "dawd_username") {
+                                document.getElementById("username").value = value;
+                            } else {
+                                console.log("Unknown cookie: "+key);
+                            }
+                        }
+                    }
+                }
+                update();
+            }
+            function update() {      
+                let schema_name = document.getElementById("schema_name").value;
+                let username = document.getElementById("username").value;
+                let ids = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5', 'step-6', 'step-7', 'step-8', 'step-9', 'step-10', 'step-11'];
+
+                if (schema_name === null || username === null || 
+                    schema_name === "" || username === "" || 
+                    schema_name == "n/a" || username === "n/a") {
+                    for (let i = 0; i < ids.length; i++) {
+                        document.getElementById(ids[i]+"-test-ta").disabled = true;
+                        document.getElementById(ids[i]+"-sql-ta").disabled = true;
+
+                        document.getElementById(ids[i]+"-test-btn").disabled = true;
+                        document.getElementById(ids[i]+"-sql-btn").disabled = true;
+
+                        document.getElementById(ids[i]+"-test-ta").value = document.getElementById(ids[i]+"-test-backup").value
+                        document.getElementById(ids[i]+"-sql-ta").value = document.getElementById(ids[i]+"-sql-backup").value
+                    }
+                } else {
+                    let illegals = ["<",">","\"","'","\\","/"]; 
+                    for (let i= 0; i < illegals.length; i++) {
+                        if (schema_name.includes(illegals[i])) {
+                            alert("Please double check your schema (database) name.\nIt cannot not include the " + illegals[i] + " symbol.");
+                            return;
+                        }
+                        if (username.includes(illegals[i])) {
+                            alert("Please double check your username.\nIt cannot not include the " + illegals[i] + " symbol.");
+                            return;
+                        }
+                    }
+                    if (schema_name.includes("@")) {
+                        alert("Please double check your schema (database) name.\nIt should not include the @ symbol.");
+                        return;
+                    }
+                    if (username.includes("@") === false) {
+                        alert("Please double check your username.\nIt should include the @ symbol.");
+                        return;
+                    }
+                    for (let i = 0; i < ids.length; i++) {
+                        document.getElementById(ids[i]+"-test-ta").disabled = false;
+                        document.getElementById(ids[i]+"-sql-ta").disabled = false;
+
+                        document.getElementById(ids[i]+"-test-btn").disabled = false;
+                        document.getElementById(ids[i]+"-sql-btn").disabled = false;
+
+                        document.getElementById(ids[i]+"-test-ta").value = document.getElementById(ids[i]+"-test-backup").value
+                                                                                   .replaceAll("{schema_name}", schema_name)
+                                                                                   .replaceAll("{username}", username);
+
+                        document.getElementById(ids[i]+"-sql-ta").value = document.getElementById(ids[i]+"-sql-backup").value
+                                                                                  .replaceAll("{schema_name}", schema_name)
+                                                                                  .replaceAll("{username}", username);
+
+                        document.cookie = "dawd_schema_name="+schema_name;
+                        document.cookie = "dawd_username="+username;
+                    }
+                }
+            }
+        </script>
+        <hr/>
+        <div>
+            <div>&copy; 2022 Databricks, Inc. All rights reserved.</div>
+            <div>Apache, Apache Spark, Spark and the Spark logo are trademarks of the <a href="https://www.apache.org/">Apache Software Foundation</a>.</div>
+            <div style="margin-top:1em">
+                <div style="float:left">
+                    <a href="https://databricks.com/privacy-policy">Privacy Policy</a> | 
+                    <a href="https://databricks.com/terms-of-use">Terms of Use</a> | <a href="https://help.databricks.com/">Support</a>
+                </div>
+                <div style="float:right">1.2.5</div>
+            </div>               
+        </div></div></body></html>

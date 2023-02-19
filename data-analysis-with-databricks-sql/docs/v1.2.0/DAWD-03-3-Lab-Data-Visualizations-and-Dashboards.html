@@ -1,0 +1,463 @@
+
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="utf-8"/>
+                <title>DAWD 03-3 - Lab - Data Visualizations and Dashboards</title>
+                <link href='https://fonts.googleapis.com/css?family=DM Sans' rel='stylesheet'>
+                <style>
+                body {
+                    background-color: #f9f7f4;
+                    font-family: 'DM Sans', serif;
+                }
+                h2 {
+                    color: #ff3621;
+                }
+                h3 {
+                    margin-left: 15px
+                }
+                ol {
+                    margin-left: -50px; 
+                    font-family:sans-serif; 
+                    color: #618794;
+                }
+                td {
+                    padding: 5px;
+                    border-bottom: 1px solid #ededed;
+                }
+                tr.selected td {
+                    color: white;
+                    background-color: red;
+                }
+                .monofont {font-family: monospace; font-size: 14px}
+                .content {max-width: 800px; margin: auto; padding-left: 50px}
+                .image-icon-inline {display:inline; vertical-align: middle; margin: 0 10px 0 10px}
+                .instructions-div {padding-left: 40px}
+            </style>
+            </head>
+            <body onload="loaded()">
+                <div class="content">
+                    <img src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/db-academy-rgb-1200px_no_bg.png" 
+                        alt="Databricks Learning" 
+                        style="width: 600px; margin-left: 100px; margin-right: 100px">
+                <hr/>
+                <h1>DAWD 03-3 - Lab - Data Visualizations and Dashboards</h1>
+        
+                <div id="inputs">
+                    <p>The two fields below are used to customize queries used in this course. Enter your schema (database) name and username, and press "Enter" to populate necessary information in the queries on this page.</p>
+                    <table>
+                        <tr>
+                            <td style="white-space:nowrap">Schema Name:&nbsp;</td>
+                            <td><input id="db_name" type="text" style="width:40em" onchange="update();"></td>
+                        </tr><tr>
+                            <td style="white-space:nowrap">Username:&nbsp;</td>
+                            <td><input id="username" type="text" style="width:40em" onchange="update();"></td>
+                        </tr>
+                    </table>
+                </div><hr/>
+<div id="step-1-wrapper" style="width:800px;"><div id="step-1-instruction" style="margin-bottom:1em">    
+
+    <h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+    Lesson Objective</h2>
+    <div class="instructions-div">
+    <p>At the end of this lesson, you will be able to:</p>
+    <ul>
+    <li>Create basic visualizations using Databricks SQL</li>
+    <li>Create a dashboard using multiple existing visualizations</li>
+    </ul></div>
+    
+    </div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-1-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-1-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-1-test-show-btn" type="button" style="display:none;" 
+                        onclick="document.getElementById('step-1-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-1-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-1-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">None</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="-1" onchange="answerIs(this, ['None']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-1-sql" style="width:800px; display: none;">
+            <div>
+                <textarea id="step-1-sql-ta" style="width:100%; padding:10px" rows="2"></textarea>
+                <textarea id="step-1-sql-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-1-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-1-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-2-wrapper" style="width:800px;"><div id="step-2-instruction" style="margin-bottom:1em">
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Create a Boxplot</h2>
+    <div class="instructions-div">    
+    <p>We can create a boxplot to highlight outliers in our data and to provide other information like quartiles, minimun, maximum, etc.</p>
+    <p>Complete the following:</p>
+    <ol>
+        <li>Open a new query tab, and run the query below</li>
+        <li>Save the query as "Boxplot"</li>
+        <li>In the query results section, click "Add Visualization"</li>
+        <li>Select "Box" as the visualization type</li>
+        <li>For "X Column" select "product_category"</li>
+        <li>For "Y Column" select "total_price"</li>
+        <li>Click the "X Axis" tab</li>
+        <li>Enter "Product Category" in the "Name" field to make more user friendly</li>
+        <li>Click the "Y Axis" tab</li>
+        <li>Enter "Price" in the "Name" field to make it more user friendly</li>
+           </ol>
+    <p>Note that there are many outliers. Although we would not want to ignore these, we can hide them by completing the following step:</p>
+    <ol start="11">
+        <li>Enter "30000" for the "End Value" field</li>
+        <li>Click "Save" in the lower-right corner</li>
+        <li>Click inside the tab named "Box 1" and change to "Price by Product"</li>
+        <li>Make sure the query is Saved</li>
+        <li>Check your work by entering your answer to the question below</li>
+        <li>After pressing <span class="monofont">ENTER/RETURN</span>, green indicates a correct answer, and red indicates incorrect</li>
+    </ol>
+    <p>Note that you can hover your mouse over the boxplot to get additional information about each plot.</p>
+    </div></div>
+        <div style="">
+            <div>
+                <textarea id="step-2-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="3">USE {db_name};
+SELECT * FROM sales;</textarea>
+                <textarea id="step-2-test-backup" style="display:none;">USE {db_name};
+SELECT * FROM sales;</textarea>
+            </div>
+            <div style="text-align:right; ; margin-top:5px">
+                <button id="step-2-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-2-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-2-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-2-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">Which product category has the highest upper fence? </td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="10" onchange="answerIs(this, ['opple']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-2-sql" style="width:800px; display: none;">
+            <div>
+                <textarea id="step-2-sql-ta" style="width:100%; padding:10px" rows="3">USE {db_name};
+SELECT * FROM sales;</textarea>
+                <textarea id="step-2-sql-backup" style="display:none;">USE {db_name};
+SELECT * FROM sales;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-2-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-2-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-3-wrapper" style="width:800px;"><div id="step-3-instruction" style="margin-bottom:1em">
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Create a Funnel</h2>
+    <div class="instructions-div">    
+    <p>The Funnel visualization shows the number of people as they progress from one step to another. In this portion of the lab, we are going to make a funnel that shows the number of customers who have progressed from sales orders to actual sales.</p>
+    <p>Complete the following:</p>
+    <ol>
+        <li>Open a new query tab, and run the query below</li>
+        <li>Save the query as "Funnel"</li>
+        <li>In the query results section, click "Add Visualization"</li>
+        <li>Select "Funnel" as the visualization type</li>
+        <li>For "Step Column" select "Step"</li>
+        <li>For "Value Column" select "Value"</li>
+    </ol>
+    <p>That's it! Most of the setup in this visualization is contained in the query. The query uses a CTE and two <span class="monofont">UNION ALL</span>s to genenerate the data. Really, all that's happening is we are selecting distinct customer IDs in each of the tables to determine which customers have been active in generating sales orders and sales.</p>
+    <ol start="7">
+        <li>Click "Save" in the lower-right corner</li>
+        <li>Click inside the tab "Funnel 1" and change the name to "Customer Funnel"</li>
+        <li>Make sure the query is Saved</li>
+        <li>Check your work by entering your answer to the question below</li>
+        <li>After pressing <span class="monofont">ENTER/RETURN</span>, green indicates a correct answer, and red indicates incorrect</li>
+    </ol>
+    </div></div>
+        <div style="">
+            <div>
+                <textarea id="step-3-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="12">USE {db_name};
+WITH funnel AS (
+    SELECT DISTINCT "Customers" AS Step, string(customer_id) FROM customers
+        UNION ALL
+    SELECT DISTINCT "Orders" AS Step, customer_id FROM sales_orders
+        UNION ALL
+    SELECT DISTINCT "Sales" AS Step, customer_id FROM sales
+)
+SELECT Step, count(customer_id) as Value 
+    FROM funnel
+    GROUP BY Step;</textarea>
+                <textarea id="step-3-test-backup" style="display:none;">USE {db_name};
+WITH funnel AS (
+    SELECT DISTINCT "Customers" AS Step, string(customer_id) FROM customers
+        UNION ALL
+    SELECT DISTINCT "Orders" AS Step, customer_id FROM sales_orders
+        UNION ALL
+    SELECT DISTINCT "Sales" AS Step, customer_id FROM sales
+)
+SELECT Step, count(customer_id) as Value 
+    FROM funnel
+    GROUP BY Step;</textarea>
+            </div>
+            <div style="text-align:right; ; margin-top:5px">
+                <button id="step-3-test-show-btn" type="button" style="" 
+                        onclick="document.getElementById('step-3-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-3-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-3-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">What is the %Max for Orders? (include the %)</td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="10" onchange="answerIs(this, ['6.77%']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-3-sql" style="width:800px; display: none;">
+            <div>
+                <textarea id="step-3-sql-ta" style="width:100%; padding:10px" rows="12">USE {db_name};
+WITH funnel AS (
+    SELECT DISTINCT "Customers" AS Step, string(customer_id) FROM customers
+        UNION ALL
+    SELECT DISTINCT "Orders" AS Step, customer_id FROM sales_orders
+        UNION ALL
+    SELECT DISTINCT "Sales" AS Step, customer_id FROM sales
+)
+SELECT Step, count(customer_id) as Value 
+    FROM funnel
+    GROUP BY Step;</textarea>
+                <textarea id="step-3-sql-backup" style="display:none;">USE {db_name};
+WITH funnel AS (
+    SELECT DISTINCT "Customers" AS Step, string(customer_id) FROM customers
+        UNION ALL
+    SELECT DISTINCT "Orders" AS Step, customer_id FROM sales_orders
+        UNION ALL
+    SELECT DISTINCT "Sales" AS Step, customer_id FROM sales
+)
+SELECT Step, count(customer_id) as Value 
+    FROM funnel
+    GROUP BY Step;</textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-3-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-3-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><hr/>
+<div id="step-4-wrapper" style="width:800px;"><div id="step-4-instruction" style="margin-bottom:1em">
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Create a Dashboard</h2>
+    <div class="instructions-div">    
+    <p>Let's combine the visualizations we just made into a dashboard.</p>
+    <p>Complete the following:</p>
+    <ol>      
+        <li>Click "Dashboards" in the sidebar menu</li>
+        <li>Click the blue "Create Dashboard" button</li>
+        <li>Name the dashboard "Company Information" and click the "Save" button</li>
+        <li>Click the blue "Add Visualization" button</li>
+        <li> In window, click "Boxplot" </li>
+        <li>Drop down "Choose Visualization" and select "Price by Product" (which you created earlier)</li>
+        <li>Change "Title" to "Prices"</li>
+        <li>Click the blue "Add to dashboard" button and the Boxplot appears in your dashboard</li>
+        <li>Repeat steps 4-8 with the "Funnel" query ("Customer Funnel")</li>
+        <li>Click "Add Textbox" and type "# Miscellaneous Information"</li>
+        <li>Optional: Move the visualizations around by clicking and dragging each one</li>
+        <li>Optional: Resize each visualization by dragging the lower-right corner of the visualization</li>
+        <li>Optional: Click "Colors" to change the color palette used by visualizations in the dashboard</li>
+        <li>Click "Done Editing" in the upper-right corner</li>
+        <li>Run every query and refresh all visualizations all at once by clicking "Refresh"</li>
+        <li>Check your work by entering your answer to the question below</li>
+        <li>Hint: Hover over each Product Category to get the statistics in the Boxplot Chart</li>
+        <li>After pressing <span class="monofont">ENTER/RETURN</span>, green indicates a correct answer, and red indicates incorrect</li>
+    </ol> 
+    </div>
+
+
+</div>
+        <div style="display: none;">
+            <div>
+                <textarea id="step-4-test-ta" style="width:100%; padding:10px; overflow-x:auto" rows="2"></textarea>
+                <textarea id="step-4-test-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; display: none;; margin-top:5px">
+                <button id="step-4-test-show-btn" type="button" style="display:none;" 
+                        onclick="document.getElementById('step-4-sql').style.display = 'block';">Show Answer</button>
+                <button id="step-4-test-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-4-test-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+
+            <table style="margin:1em 0; border-collapse:collapse; width:800px;">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #D1E2FF; width: 100%; text-align:left;">Which product category has the lowest minimum price? </td>
+                        <td style="background-color: #D1E2FF; width: 1em; text-align:right;">
+                            <input type="text" size="10" onchange="answerIs(this, ['rony']);" style="background-color: rgb(255, 255, 255);">
+                        </td>
+                    </tr>    
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="step-4-sql" style="width:800px; display: none;">
+            <div>
+                <textarea id="step-4-sql-ta" style="width:100%; padding:10px" rows="2"></textarea>
+                <textarea id="step-4-sql-backup" style="display:none;"></textarea>
+            </div>
+            <div style="text-align:right; margin-top:5px">
+                <button id="step-4-sql-btn" type="button"  onclick="
+                    let ta = document.getElementById('step-4-sql-ta');
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    navigator.clipboard.writeText(ta.value);">Copy</button>
+            </div>
+        </div>
+        </div><script type="text/javascript">
+            
+            function answerIs(self, expected) {
+                if (self.value === "") {
+                    self.style.backgroundColor="#ffffff";
+                } else if (self.value.toLowerCase().includes(expected)) {
+                    self.style.backgroundColor="#7ffe78";
+                } else {
+                    self.style.backgroundColor="#ffb9bb";
+                }
+            }
+        
+            function loaded() {
+                let data = document.cookie;
+                if (data != null && data.trim() !== "") {
+                    let parts = data.split(";");
+                    for (let i = 0; i < parts.length; i++) {
+                        let key_value = parts[i].trim();
+                        let key = key_value.split("=")[0].trim();
+                        let value = key_value.split("=")[1].trim();
+                        if (value !== "n/a") {
+                            if (key === "dawd_db_name") {
+                                document.getElementById("db_name").value = value;
+                            } else if (key === "dawd_username") {
+                                document.getElementById("username").value = value;
+                            } else {
+                                console.log("Unknown cookie: "+key);
+                            }
+                        }
+                    }
+                }
+                update();
+            }
+            function update() {      
+                let db_name = document.getElementById("db_name").value;
+                let username = document.getElementById("username").value;
+                let ids = ['step-1', 'step-2', 'step-3', 'step-4'];
+
+                if (db_name === "" || username === "" || db_name === null || username === null) {
+                    for (let i = 0; i < ids.length; i++) {
+                        document.getElementById(ids[i]+"-test-ta").disabled = true;
+                        document.getElementById(ids[i]+"-sql-ta").disabled = true;
+
+                        document.getElementById(ids[i]+"-test-btn").disabled = true;
+                        document.getElementById(ids[i]+"-sql-btn").disabled = true;
+
+                        document.getElementById(ids[i]+"-test-ta").value = document.getElementById(ids[i]+"-test-backup").value
+                        document.getElementById(ids[i]+"-sql-ta").value = document.getElementById(ids[i]+"-sql-backup").value
+                    }
+                } else {
+                    let illegals = ["<",">","\"","'","\\","/"]; 
+                    for (let i= 0; i < illegals.length; i++) {
+                        if (db_name.includes(illegals[i])) {
+                            alert("Please double check your schema (database) name.\nIt cannot not include the " + illegals[i] + " symbol.");
+                            return;
+                        }
+                        if (username.includes(illegals[i])) {
+                            alert("Please double check your username.\nIt cannot not include the " + illegals[i] + " symbol.");
+                            return;
+                        }
+                    }
+                    if (db_name.includes("@")) {
+                        alert("Please double check your schema (database) name.\nIt should not include the @ symbol.");
+                        return;
+                    }
+                    if (username.includes("@") === false) {
+                        alert("Please double check your username.\nIt should include the @ symbol.");
+                        return;
+                    }
+                    for (let i = 0; i < ids.length; i++) {
+                        document.getElementById(ids[i]+"-test-ta").disabled = false;
+                        document.getElementById(ids[i]+"-sql-ta").disabled = false;
+
+                        document.getElementById(ids[i]+"-test-btn").disabled = false;
+                        document.getElementById(ids[i]+"-sql-btn").disabled = false;
+
+                        document.getElementById(ids[i]+"-test-ta").value = document.getElementById(ids[i]+"-test-backup").value
+                                                                                   .replaceAll("{db_name}", db_name)
+                                                                                   .replaceAll("{username}", username);
+
+                        document.getElementById(ids[i]+"-sql-ta").value = document.getElementById(ids[i]+"-sql-backup").value
+                                                                                  .replaceAll("{db_name}", db_name)
+                                                                                  .replaceAll("{username}", username);
+
+                        document.cookie = "dawd_db_name="+db_name;
+                        document.cookie = "dawd_username="+username;
+                    }
+                }
+            }
+        </script>
+        <hr/>
+        <div>
+            <div>&copy 2022 Databricks, Inc. All rights reserved.</div>
+            <div>Apache, Apache Spark, Spark and the Spark logo are trademarks of the <a href="https://www.apache.org/">Apache Software Foundation</a>.</div>
+            <div style="margin-top:1em">
+                <div style="float:left">
+                    <a href="https://databricks.com/privacy-policy">Privacy Policy</a> | 
+                    <a href="https://databricks.com/terms-of-use">Terms of Use</a> | <a href="https://help.databricks.com/">Support</a>
+                </div>
+                <div style="float:right">1.2.0</div>
+            </div>               
+        </div></div></body></html>

@@ -1,0 +1,376 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><title>DAWD 01-5 - Lab - Tables and Views on Databricks SQL</title>
+            <link href='https://fonts.googleapis.com/css?family=DM Sans' rel='stylesheet'>
+            <style>
+                h2 {
+                    color: #ff3621;
+                }
+                h3 {
+                    margin-left: 15px
+                }
+                ol {
+                    margin-left: -50px; 
+                    font-family:sans-serif; 
+                    color: #618794;
+                }
+                td {
+                    padding: 5px;
+                    border-bottom: 1px solid #ededed;
+                }
+                
+                tr.selected td {
+                    color: white;
+                    background-color: red;
+                }
+                tbody.main_table td { 
+                    background-color: #D1E2FF; 
+                }
+                .monofont {font-family: monospace; font-size: 14px}
+                .content {max-width: 800px; margin: auto; padding-left: 50px}
+                .image-icon-inline {display:inline; vertical-align: middle; margin: 0 10px 0 10px}
+                .instructions-div {padding-left: 40px}
+            </style>
+        </head><body onload=loaded(); style="background-color: #f9f7f4; font-family: 'DM Sans', serif;"><div class="content"><img src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/db-academy-rgb-1200px_no_bg.png" 
+                        alt="Databricks Learning" 
+                        style="width: 600px; margin-left: 100px; margin-right: 100px">
+<hr/>
+<h1>DAWD 01-5 - Lab - Tables and Views on Databricks SQL</h1>
+        <p>The two fields below are used to customize queries used in this course. Enter your schema (database) name and username, and press "Enter" to populate necessary information in the queries on this page.</p>
+        <table>
+            <tr>
+                <td style="white-space:nowrap">Schema Name:&nbsp;</td>
+                <td><input id="db_name" type="text" style="width:40em" onchange="update();"></td>
+            </tr><tr>
+                <td style="white-space:nowrap">Username:&nbsp;</td>
+                <td><input id="username" type="text" style="width:40em" onchange="update();"></td>
+            </tr>
+        </table><hr/>
+<div id="step-1-wrapper" style="width:800px"><div id="step-1-instruction" style="margin-bottom:1em">    
+
+    <h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+    Lab Objective</h2>
+    <div class="instructions-div">
+    <p>At the end of this lab, you will be able to:</p>
+    <ul>
+    <li>Use Databricks SQL to create tables and views</li>
+    </ul></div>
+    
+    </div>
+        <div style="width:800px; display: none;">
+            <textarea id="step-1-ta" style="width:780px; padding:10px" rows="1"></textarea>
+            <textarea id="step-1-backup" style="display:none;"></textarea>
+        </div>
+        <div style="width:800px; text-align:right; display: none;">
+            <button id="step-1-btn" type="button"  onclick="
+                let ta = document.getElementById('step-1-ta');
+                ta.select();
+                ta.setSelectionRange(0, ta.value.length);
+                navigator.clipboard.writeText(ta.value);">Copy</button>
+        </div>
+        </div><hr/>
+<div id="step-2-wrapper" style="width:800px"><div id="step-2-instruction" style="margin-bottom:1em">
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Create External Tables</h2>
+    <div class="instructions-div">
+    <p>In this part of the lab, you are going to create an external table using a dataset located at 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v01/sales/'.</p>
+    <p>Complete the following:</p>
+    <ol>
+        <li>Make the required changes to the query below</li>
+        <li>Run the query in Databricks SQL</li>
+        <li>Check your work by entering your answer to the question</li>
+        <li>After pressing <span class="monofont">ENTER/RETURN</span>, green indicates a correct answer, and red indicates incorrect</li>
+    </ol>
+    <p><pre><span class="monofont">USE <span style="color:red;">FILL_IN</span>;
+DROP TABLE IF EXISTS sales_external;
+CREATE <span style="color:red;">FILL_IN</span> sales_external USING DELTA
+    <span style="color:red;">FILL_IN</span> 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v01/sales/';</span>
+SELECT * FROM sales_external ORDER BY customer_id;</pre></p>
+    </div>
+</div>
+        <div width="100%">
+            <table width="100%">
+            <tbody class="main_table">
+            <tr>
+                <td style="width: 75%; text-align:left;">What is the value of <span class="monofont">customer_id</span> in the first row?  </td>
+                <td style="width: 25%; text-align:center;"><input type="text" onchange="answerIs(this, ['12096776']);" style="background-color: rgb(255, 255, 255);">
+            </td>
+            </tr>    
+            </tbody>
+            </table>
+        </div>
+        
+        <div style="width:800px; display: none;">
+            <textarea id="step-2-ta" style="width:780px; padding:10px" rows="4">USE {db_name};
+DROP TABLE IF EXISTS sales_external;
+CREATE TABLE sales_external USING DELTA LOCATION 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v01/sales/';
+SELECT * FROM sales_external ORDER BY customer_id;</textarea>
+            <textarea id="step-2-backup" style="display:none;">USE {db_name};
+DROP TABLE IF EXISTS sales_external;
+CREATE TABLE sales_external USING DELTA LOCATION 'wasbs://courseware@dbacademy.blob.core.windows.net/data-analysis-with-databricks/v01/sales/';
+SELECT * FROM sales_external ORDER BY customer_id;</textarea>
+        </div>
+        <div style="width:800px; text-align:right; display: none;">
+            <button id="step-2-btn" type="button"  onclick="
+                let ta = document.getElementById('step-2-ta');
+                ta.select();
+                ta.setSelectionRange(0, ta.value.length);
+                navigator.clipboard.writeText(ta.value);">Copy</button>
+        </div>
+        </div><hr/>
+<div id="step-3-wrapper" style="width:800px"><div id="step-3-instruction" style="margin-bottom:1em">
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Create Managed Table</h2>
+    <div class="instructions-div">
+    <p>The data for the table we created above is in a read-only object store. We want to copy the data into a local, managed table here in our workspace. In this part of the lab, we are going to create a managed table using a subquery, which we will learn about later in this course, to accomplish this.</p>
+    <p>Complete the following:</p>
+    <ol>
+        <li>Make the required changes to the query below</li>
+        <li>Run the query in Databricks SQL</li>
+        <li>Check your work by entering your answer to the question</li>
+        <li>After pressing <span class="monofont">ENTER/RETURN</span>, green indicates a correct answer, and red indicates incorrect</li>
+    </ol>
+    <p><pre><span class="monofont">USE <span style="color:red;">FILL_IN</span>;
+<span style="color:red;">FILL_IN</span> TABLE sales USING DELTA AS
+    SELECT * FROM sales_external;</span>
+DESCRIBE <span style="color:red;">FILL_IN</span> sales;</pre></p>
+    </div>
+
+
+</div>
+        <div width="100%">
+            <table width="100%">
+            <tbody class="main_table">
+            <tr>
+                <td style="width: 75%; text-align:left;">What is the value of <span class="monofont">Owner</span>?  </td>
+                <td style="width: 25%; text-align:center;"><input type="text" onchange="answerIs(this, ['root']);" style="background-color: rgb(255, 255, 255);">
+            </td>
+            </tr>    
+            </tbody>
+            </table>
+        </div>
+        
+        <div style="width:800px; display: none;">
+            <textarea id="step-3-ta" style="width:780px; padding:10px" rows="3">USE {db_name};
+CREATE OR REPLACE TABLE sales AS SELECT * FROM sales_external;
+DESCRIBE EXTENDED sales;</textarea>
+            <textarea id="step-3-backup" style="display:none;">USE {db_name};
+CREATE OR REPLACE TABLE sales AS SELECT * FROM sales_external;
+DESCRIBE EXTENDED sales;</textarea>
+        </div>
+        <div style="width:800px; text-align:right; display: none;">
+            <button id="step-3-btn" type="button"  onclick="
+                let ta = document.getElementById('step-3-ta');
+                ta.select();
+                ta.setSelectionRange(0, ta.value.length);
+                navigator.clipboard.writeText(ta.value);">Copy</button>
+        </div>
+        </div><hr/>
+<div id="step-4-wrapper" style="width:800px"><div id="step-4-instruction" style="margin-bottom:1em">
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Use Data Explorer</h2>
+    <div class="instructions-div">
+    <p>In this part of the lab, you will use the Data Explorer to find the answer to the question below.</p>
+    <p>Complete the following:</p>
+    <ol>
+        <li>Click "Data" in the sidebar menu to go to the Data Explorer</li>
+        <li>Check to the right of 'hive_metastore'. If your schema isn't selected, click on "default" and in the drop down menu, and select it.</li>
+        <li>Select the table, "sales" from the list</li>
+        <li>Feel free to explore the tabs to see more information about this table</li>
+        <li>When you are ready, enter your answer to the question below</li>
+        <li>After pressing <span class="monofont">ENTER/RETURN</span>, green indicates a correct answer, and red indicates incorrect</li>
+    </ol>
+    </div>
+
+
+</div>
+        <div width="100%">
+            <table width="100%">
+            <tbody class="main_table">
+            <tr>
+                <td style="width: 75%; text-align:left;">Under History, what was the operation associated with Version 0 of the table?  </td>
+                <td style="width: 25%; text-align:center;"><input type="text" onchange="answerIs(this, ['create or replace table as select']);" style="background-color: rgb(255, 255, 255);">
+            </td>
+            </tr>    
+            </tbody>
+            </table>
+        </div>
+        
+        <div style="width:800px; display: none;">
+            <textarea id="step-4-ta" style="width:780px; padding:10px" rows="1">USE {db_name};</textarea>
+            <textarea id="step-4-backup" style="display:none;">USE {db_name};</textarea>
+        </div>
+        <div style="width:800px; text-align:right; display: none;">
+            <button id="step-4-btn" type="button"  onclick="
+                let ta = document.getElementById('step-4-ta');
+                ta.select();
+                ta.setSelectionRange(0, ta.value.length);
+                navigator.clipboard.writeText(ta.value);">Copy</button>
+        </div>
+        </div><hr/>
+<div id="step-5-wrapper" style="width:800px"><div id="step-5-instruction" style="margin-bottom:1em">
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Drop External Table, then create new one to confirm still have data files</h2>
+    <div class="instructions-div">
+    <p>We are going to keep the managed table, but we need to drop the external table.</p>
+    <p>Complete the following:</p>
+    <ol>
+        <li>Make the required changes to the query below to drop the table, <span class="monofont">sales_external</span> from the schema</li>
+        <li>Run the query in Databricks SQL</li>
+        <li>Confirm can no longer view metadata via 'DESCRIBE' command</li>
+        <li>Re-create the table with new name 'external_table2'</li>
+        <li>Run 'SELECT' to confirm the data files return answer set</li>
+        <li>Check your work by entering your answer to the question</li>
+        <li>After pressing <span class="monofont">ENTER/RETURN</span>, green indicates a correct answer, and red indicates incorrect</li>
+    </ol>
+    <p><pre><span class="monofont">USE <span style="color:red;">FILL_IN</span>;
+<span style="color:red;">FILL_IN</span> TABLE sales_external;
+CREATE OR REPLACE TABLE {db_name}.external_table2
+LOCATION 'dbfs:/mnt/dbacademy-datasets/data-analysis-with-databricks/v01/sales';
+DESCRIBE EXTENDED {db_name}.external_table2;
+SELECT * FROM markott_da_custom_loc.external_table2;
+
+</pre></p>
+    </div>
+
+
+</div>
+        <div width="100%">
+            <table width="100%">
+            <tbody class="main_table">
+            <tr>
+                <td style="width: 75%; text-align:left;">Where you able to point to data files from table you DROPPED earlier? (yes or no) </td>
+                <td style="width: 25%; text-align:center;"><input type="text" onchange="answerIs(this, ['yes']);" style="background-color: rgb(255, 255, 255);">
+            </td>
+            </tr>    
+            </tbody>
+            </table>
+        </div>
+        
+        <div style="width:800px; display: none;">
+            <textarea id="step-5-ta" style="width:780px; padding:10px" rows="2">USE {db_name};
+CREATE OR REPLACE TABLE sales_managed AS SELECT * FROM sales;</textarea>
+            <textarea id="step-5-backup" style="display:none;">USE {db_name};
+CREATE OR REPLACE TABLE sales_managed AS SELECT * FROM sales;</textarea>
+        </div>
+        <div style="width:800px; text-align:right; display: none;">
+            <button id="step-5-btn" type="button"  onclick="
+                let ta = document.getElementById('step-5-ta');
+                ta.select();
+                ta.setSelectionRange(0, ta.value.length);
+                navigator.clipboard.writeText(ta.value);">Copy</button>
+        </div>
+        </div><hr/>
+<div id="step-6-wrapper" style="width:800px"><div id="step-6-instruction" style="margin-bottom:1em">
+
+<h2><img class="image-icon-inline" src="https://s3.us-west-2.amazonaws.com/files.training.databricks.com/images/step-icon_small.png" alt="heading-icon" />
+Drop Tables</h2>
+    <div class="instructions-div">
+    <p>We are going to keep the managed table, but we need to drop the external table.</p>
+    <p>Complete the following:</p>
+    <ol>
+        <li>Make the required changes to the query below to drop the table, <span class="monofont">sales_external</span> from the schema</li>
+        <li>Run the query in Databricks SQL</li>
+        <li>'DESCRIBE' command should fail since metadata has been removed</li>
+        <li>Check your work by entering your answer to the question</li>
+        <li>After pressing <span class="monofont">ENTER/RETURN</span>, green indicates a correct answer, and red indicates incorrect</li>
+    </ol>
+    <p><pre><span class="monofont">USE <span style="color:red;">FILL_IN</span>;
+<span style="color:red;">FILL_IN</span> TABLE sales_external;
+DESCRIBE <span style="color:red;">FILL_IN</span> sales_external;</pre></p>
+    </div>
+
+
+</div>
+        <div width="100%">
+            <table width="100%">
+            <tbody class="main_table">
+            <tr>
+                <td style="width: 75%; text-align:left;">Did the 'DESCRIBE' command fail? (yes or no)  </td>
+                <td style="width: 25%; text-align:center;"><input type="text" onchange="answerIs(this, ['yes']);" style="background-color: rgb(255, 255, 255);">
+            </td>
+            </tr>    
+            </tbody>
+            </table>
+        </div>
+        
+        <div style="width:800px; display: none;">
+            <textarea id="step-6-ta" style="width:780px; padding:10px" rows="2">USE {db_name};
+DROP TABLE sales_managed;</textarea>
+            <textarea id="step-6-backup" style="display:none;">USE {db_name};
+DROP TABLE sales_managed;</textarea>
+        </div>
+        <div style="width:800px; text-align:right; display: none;">
+            <button id="step-6-btn" type="button"  onclick="
+                let ta = document.getElementById('step-6-ta');
+                ta.select();
+                ta.setSelectionRange(0, ta.value.length);
+                navigator.clipboard.writeText(ta.value);">Copy</button>
+        </div>
+        </div><script type="text/javascript">
+            function answerIs(self, expected) {
+                if (self.value === "") {
+                    self.style.backgroundColor="#ffffff";
+                } else if (expected.includes(self.value.toLowerCase())) {
+                    self.style.backgroundColor="#7ffe78";
+                } else {
+                    self.style.backgroundColor="#ffb9bb";
+                }
+            }
+            function loaded() {
+                let data = document.cookie;
+                if (data != null && data.trim() != "") {
+                    parts = data.split(";");
+                    for (i = 0; i < parts.length; i++) {
+                        let key_value = parts[i].trim();
+                        let key = key_value.split("=")[0].trim();
+                        let value = key_value.split("=")[1].trim();
+
+                        if (key == "dawd_db_name") document.getElementById("db_name").value = value;
+                        else if (key == "dawd_username") document.getElementById("username").value = value;
+                        else console.log("Unknown cookie: "+key);
+                    }
+                }
+                update();
+            }
+            function update() {      
+                let db_name = document.getElementById("db_name").value;
+                let username = document.getElementById("username").value;
+                let ids = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5', 'step-6'];
+
+                if (db_name === "" || username === "" || db_name === null || username === null) {
+                    for (let i = 0; i < ids.length; i++) {
+                        document.getElementById(ids[i]+"-ta").disabled = true;
+                        document.getElementById(ids[i]+"-btn").disabled = true;
+
+                        let ba = document.getElementById(ids[i]+"-backup");
+                        document.getElementById(ids[i]+"-ta").value = ba.value
+                    }
+                } else {
+                    for (let i = 0; i < ids.length; i++) {
+                        document.getElementById(ids[i]+"-ta").disabled = false;
+                        document.getElementById(ids[i]+"-btn").disabled = false;
+
+                        let ba = document.getElementById(ids[i]+"-backup");
+                        let value = ba.value.replaceAll("{db_name}", db_name)
+                                            .replaceAll("{username}", username);
+
+                        document.getElementById(ids[i]+"-ta").value = value
+
+                        document.cookie = "dawd_db_name="+db_name;
+                        document.cookie = "dawd_username="+username;
+                    }
+                }
+            }
+        </script>
+        <hr/>
+        <div>
+            <p>© 2022 Databricks, Inc. All rights reserved.<br>
+               Apache, Apache Spark, Spark and the Spark logo are trademarks of the <a href="https://www.apache.org/">Apache Software Foundation</a>.<br>
+               <br>
+               <a href="https://databricks.com/privacy-policy">Privacy Policy</a> | 
+               <a href="https://databricks.com/terms-of-use">Terms of Use</a> | <a href="https://help.databricks.com/">Support</a>
+            </p>
+        </div></div></body></html>
